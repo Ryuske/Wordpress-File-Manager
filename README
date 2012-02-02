@@ -1,9 +1,6 @@
 Wordpress Plugin; File Manager
 
 TODO:
-Add functionality to $file_manager->validate_settings()
-Setup $this->options array with defaults.
 Add functionality to File Permissions page in backend
-Add functionality to Categories page in backend
-Write Help page in backend
+Continue Help page in backend
 Add "pretty" urls

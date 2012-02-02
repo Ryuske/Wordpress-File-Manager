@@ -8,7 +8,26 @@ License: GPL2
  */
 class file_manager {
     public $attachments, $current_attachment;
-    public $options = array();
+    public $options = array(
+        'permissions' => array(
+            'use' => True,
+            'options_name' => 'ma_accounts_settings'
+        ),
+        'files' => array(/*****EXAMPLE*****
+            'name' => '3rd Brown Testing Sheet',
+            'belt_access' => 5, //Id of purple belt
+            'programs_access' => 0 //Id of Swat program
+         */),
+        'categories' => array(/*****EXAMPLE*****
+            'id' => 0,
+            'name' => 'My Cat',
+            'sub_categories' => array('Something', 'Koala'),
+            ***Another entry into the array***
+            'id' => 1
+            'name' => 'My Cat->Something',
+            'sub_categories' => array('Hazah')
+         */)
+    );
 
     function __construct() {
         /*
@@ -25,13 +44,47 @@ class file_manager {
         wp_register_style('fileManagerStyle', plugins_url('application/view/css/file_manager.css', __FILE__));
         wp_register_script('fileManagerScript', plugins_url('application/view/js/admin.js', __FILE__));
 
-        //register_activation_hook(__FILE__, array(&$this, 'activate_plugin'));
+        register_activation_hook(__FILE__, array(&$this, 'activate_plugin'));
 
         add_action('admin_menu', array(&$this, 'add_admin_menu'));
         add_action('admin_init', array(&$this, 'admin_settings'));
 
         $this->get_attachments();
     } //End __construct
+
+    /*
+     * Purpose: To sort an array by a specific element
+     * Param: array $array
+     * Param: string $element
+     * Param: int $sort_flags
+     * Return: None
+     */
+    public function sort_array_by_element(&$array, $element, $sort_flags=SORT_REGULAR) {
+        $temp_array = $array;
+        $new_array = array();
+
+        foreach ($temp_array as $key => $value) {
+            unset($temp_array[$key]);
+            $temp_array[] = $value[$element];
+        }
+
+        sort($temp_array, $sort_flags);
+
+        foreach ($temp_array as $array_element) {
+            foreach ($array as $key => &$value) {
+                if ($array_element === $value[$element]) {
+                    $new_array[$key] = $value;
+                    break;
+                }
+            }
+        }
+
+        $array = $new_array;
+    } //End sort_array_by_element
+
+    public function activate_plugin() {
+        update_option('file_manager_settings', $this->options);
+    } //End activate_plugin
 
     public function add_admin_menu() {
         add_plugins_page('Manage file manager options. Integrated with MA Accounts.', 'File Manager', 'administrator', 'file_manager', array(&$this, 'render_backend'));
@@ -45,6 +98,78 @@ class file_manager {
     } //End admin_settings
 
     public function validate_settings($input) {
+        $temp = '';
+        $valid_options = array(
+            'permissions' => array(
+                'use' => trim($input['permissions']['use']),
+                'options_name' => trim($input['permissions']['options_name'])
+            ),
+            'files' => array(),
+            'categories' => array()
+        );
+
+        foreach($valid_options as $key => &$value) {
+            $value = (!array_key_exists($key, $input)) ? $this->options[$key] : $value;
+        }
+
+        foreach ($valid_options as $key => &$value) {
+            switch ($key) {
+                case 'permissions':
+                    if (!empty($value['use'])) {
+                        $value['use'] = True;
+                    } else {
+                        $value['use'] = False;
+                    }
+
+                    if (!get_option($value['options_name'])) {
+                        $value['options_name'] = $this->options['permissions']['options_name'];
+                    }
+                    break;
+                case 'categories':
+                    if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories']) && !array_key_exists('name', $input)) {
+                        unset($valid_options['categories'][$input['category_id']]);
+                        foreach ($valid_options['categories'] as $key => &$value) {
+                            $temp = (!empty($value['sub_categories'])) ? explode(',', $value['sub_categories']) : '';
+                            if (!empty($temp)) {
+                                foreach ($temp as $temp_key => $temp_value) {
+                                    if ($temp_value === $input['category_id']) {
+                                        unset($temp[$temp_key]);
+                                    }
+                                }
+                                $value['sub_categories'] = implode(',', $temp);
+                            }
+                        }
+                    }
+
+                    if (is_string($input['name'])) {
+                        $temp = array('', '');
+
+                        if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories'])) {
+                            $temp[0] = $input['category_id'];
+                        } else {
+                            end($valid_options['categories']);
+                            $temp[0] = key($valid_options['categories']);
+                            if (isset($temp[0])) {
+                                $temp[0]++;
+                            } else {
+                                $temp[0] = 0;
+                            }
+                        }
+
+                        foreach ($input['sub_categories'] as $cat_key => $cat_value) {
+                            $temp[1] .= $cat_key . ',';
+                        }
+                        $temp[1] = substr($temp[1], 0, -1);
+
+                        $valid_options['categories'][$temp[0]] = array('id' => $temp[0], 'name' => trim($input['name']), 'sub_categories' => $temp[1]);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return $valid_options;
     } //End validate_settings
 
     /*
@@ -96,10 +221,16 @@ class file_manager {
     } //End return_attachments
 
     public function render_backend() {
+        global $file_manager;
         if (current_user_can('administrator')) {
             wp_enqueue_style('black-tie');
             wp_enqueue_style('fileManagerStyle');
             wp_enqueue_script('fileManagerScript');
+
+            $settings = get_option('file_manager_settings');
+            if ($settings['permissions']['use']) {
+                $permissions_settings = get_option($settings['permissions']['options_name']);
+            }
             include dirname(__FILE__) . '/application/view/options.php';
         }
     } //End render_backend

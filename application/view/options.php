@@ -1,6 +1,3 @@
-<?php
-$settings = get_option('file_manager_settings');
-?>
 <div id="option-tabs" style="clear:both; margin-right:20px;" class="ui-tabs ui-widget ui-widget-content ui-corner-all">
     <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
         <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
@@ -31,11 +28,13 @@ $settings = get_option('file_manager_settings');
         <table class="file_manager_table">
             <tbody>
                 <tr>
+                    <th></th>
                     <th>File</th>
-                    <th>Belts With Access</th>
-                    <th>Programs With Access</th>
+                    <th>Belt Access</th>
+                    <th>Programs Access</th>
                 </tr>
                 <tr>
+                    <td><a href="plugins.php?page=file_manager&amp;id=1&amp;action=update_permissions#file_permissions"><span class="ui-icon ui-icon-pencil" style="position: relative; margin: 0 auto;"></span></a></td>
                     <td>3rd Brown Testing Sheet</td>
                     <td>Purple</td>
                     <td>Swat</td>
@@ -46,23 +45,45 @@ $settings = get_option('file_manager_settings');
 
     <!--Categories page-->
     <div id="categories" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-        <h1 style="display: inline">Categories</h1> <h3 style="display: inline; position: relative; bottom: 1px;"><a href="#belts_programs" onclick="jQuery('#add_belt').dialog('open')"><span class="ui-icon ui-icon-plusthick" style="display: inline-block; vertical-align: text-top;"></span>Add</a></h3>
-        <table class="file_manager_table">
-            <tbody>
-                <tr>
-                    <th>Category</td>
-                    <th>Sub-Categories</th>
-                </tr>
-                <tr>
-                    <td>My Cat</td>
-                    <td>Something, Koala</td>
-                </tr>
-                <tr>
-                    <td>My Cat-&gt;Something</td>
-                    <td>Hazah</td>
-                </tr>
-            </tbody>
-        </table>
+        <h1 style="display: inline">Categories</h1> <h3 style="display: inline; position: relative; bottom: 1px;"><a href="#categories" onclick="jQuery('#add_category').dialog('open')"><span class="ui-icon ui-icon-plusthick" style="display: inline-block; vertical-align: text-top;"></span>Add</a></h3>
+        <?php
+        if (count($settings['categories']) <= 0) {
+            echo '<div>You haven\'t added any categories yet! <a href="#categories" onclick="jQuery(\'#add_category\').dialog(\'open\')">Add</a> one now.</div>';
+        } else {
+            ?>
+            <table class="file_manager_table">
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>Category</td>
+                        <th>Sub-Categories</th>
+                    </tr>
+                    <?php
+
+                    $file_manager->sort_array_by_element($settings['categories'], 'name');
+                    foreach ($settings['categories'] as $key => $value) {
+                        $temp = explode(',', $value['sub_categories']);
+                        foreach ($temp as $temp_key => &$temp_value) {
+                            $temp_value = $settings['categories'][$temp_value]['name'];
+                        }
+                        $temp = implode(', ', $temp);
+                        ?>
+                        <tr>
+                            <td>
+                                <a href="plugins.php?page=file_manager&amp;id=<?php echo (int) $value['id']; ?>&amp;action=update_category#categories"><span class="ui-icon ui-icon-pencil" style="float: left"></span></a>
+                                <a href="plugins.php?page=file_manager&amp;id=<?php echo (int) $value['id']; ?>&amp;action=delete_category#categories"><span class="ui-icon ui-icon-trash"></span></a>
+                            </td>
+                            <td><?php esc_html_e($value['name']); ?></td>
+                            <td><?php esc_html_e($temp); ?></td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
+                </tbody>
+            </table>
+            <?php
+        }
+        ?>
     </div>
 
     <!--Settings page-->
@@ -70,11 +91,11 @@ $settings = get_option('file_manager_settings');
         <h1>Settings</h1>
         <form id="update_settings" name="update_settings" action="options.php#settings" method="post">
             <?php settings_fields('file_manager_settings'); ?>
-            <label>User Permissions (ma_accounts)</label>
-            <input name="file_manager_settings[permissions][use]" type="checkbox" value="true" checked="checked" /> <br /><br />
+            <label>User Permissions</label>
+                <input name="file_manager_settings[permissions][use]" type="checkbox" value="true" <?php echo ($settings['permissions']['use']) ? 'checked="checked"' : ''; ?> /> <br /><br />
 
             <label>Plugins Option Names (Used by User Permissions; Refer to plugin if you're unsure)</label> <br />
-            <input style="width: 400px;" name="file_manager_settings[permissions][options_name]" type="text" value="ma_accounts_settings" /> <br /><br />
+            <input style="width: 400px;" name="file_manager_settings[permissions][options_name]" type="text" value="<?php esc_html_e($settings['permissions']['options_name']); ?>" /> <br /><br />
 
             <input class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" type="submit" value="Save Changes" />
         </form>
@@ -83,72 +104,58 @@ $settings = get_option('file_manager_settings');
     <!--Help page-->
     <div id="help" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
         <h1>Help</h1>
-        <p>Write this (mention how stuff on Settings page works).</p>
+        <label class="file_manager_label">Categories</label>
+        <p>
+            When adding a category, if you want to add sub-categories to a sub-category you show it's a sub-category with a -&gt;. <br />
+            For example: Files is a category and Audio is a sub-category to that, and you want to give Audio another sub-category of mp3.<br />
+            It would look like this, <span style="font-style: italics;">Files-&gt;Audio</span>. You can continue this pattern as far as you want (i.e. Files-&gt;Audio-&gt;mp3-&gt;Under 1 Minute)
+        </p>
+
+        <label class="file_manager_label">Settings</label>
+        <p>
+            You can use permissions inherited from another plugin (currently the only supported plugin is <a href="$value['sub_categories']">Martial Arts Student Manager</a>). <br />
+            All you have to do is check the box letting us know you want to use permissions, and then type in the options name the plugin is<br />
+            using for it's options. This should be documented on the 3rd party plugin somewhere.
+        </p>
         <p>Check us out on GitHub to track the latest updates and releases: <a href="https://github.com/Ryuske/Wordpress-File-Manager" target="_blank">https://github.com/Ryuske/Wordpress-File-Manager</a>
     </div>
 
     <!--Start dialog HTML-->
-    <?php /*
     <?php
-    if (is_numeric($_GET['id']) && $_GET['action'] === 'update_account') {
+    if (is_numeric($_GET['id']) && $_GET['action'] === 'update_permissions') {
         $id = (int) $_GET['id'];
         ?>
-        <script type="text/javascript">jQuery(document).ready(function(){jQuery('#update_account').dialog('open')});</script>
+        <script type="text/javascript">jQuery(document).ready(function(){jQuery('#update_permissions').dialog('open')});</script>
         <?php
     }
     ?>
-    <div id="update_account" title="Edit Account">
+    <div id="update_permissions" title="Edit Permissions">
         <?php
-        $total_users = count_users();
-        $total_users = $total_users['total_users'];
-
-        if ($id <= $total_users && $id > 0) {
-            $account = get_userdata($id);
-            $name = '';
-            if (isset($account->nickname)) {
-                $name = $account->nickname;
-                if (isset($account->last_name)) {
-                    $name .= ' ' . $account->last_name;
-                }
-            } else if (isset($account->first_name) && isset($account->last_name)) {
-                $name = $account->first_name . ' ' . $account->last_name;
-            } else {
-                $name = $account->display_name;
-            }
-
-            if (get_user_meta($id, 'ma_accounts_programs', true) !== '') {
-                $programs_array = explode(',', get_user_meta($id, 'ma_accounts_programs', true));
-                $temp = array();
-                foreach ($programs_array as $value) {
-                    $temp[$value] = $value;
-                }
-            }
-            $programs_array = $temp;
-            unset($temp);
+        if ($id <= 2 && $id > 0) {
             ?>
-            <h2 style="text-align: center"><?php esc_html_e($name); ?></h2>
-            <form id="edit_account" action="options.php#accounts" method="post">
-                <?php settings_fields('ma_accounts_settings'); ?>
-                <input name="ma_accounts_settings[update_account]" type="hidden" value="<?php echo $id; ?>" />
-                <label class="ma_accounts_label">Belt</label>
+            <h2 style="text-align: center">3rd Brown Testing Sheet</h2>
+            <form id="edit_permissions" action="options.php#file_permissions" method="post">
+                <?php settings_fields('file_manager_settings'); ?>
+                <input name="file_manager_settings[update_account]" type="hidden" value="<?php echo $id; ?>" />
+                <label class="file_manager_label">Belt</label>
                 <span>
-                    <select name="ma_accounts_settings[belts]">
+                    <select name="file_manager_settings[belts]">
                         <?php
-                        foreach ($settings['belts'] as $belt) {
+                        foreach ($permissions_settings['belts'] as $belt) {
                             echo ($belt['id'] == get_user_meta($id, 'ma_accounts_belt', true)) ? '<option value="' . esc_html($belt['id']) . '" selected="selected">' . esc_html($belt['name']) . '</option>' : '<option value="' . esc_html($belt['id']) . '">' . esc_html($belt['name']) . '</option>';
                         }
                         ?>
                     </select>
                 </span> <br /><br />
-                <label class="ma_accounts_label">VIP Programs</label> <br />
+                <label class="file_manager_label">VIP Programs</label> <br />
                 <table>
                     <tbody>
                         <?php
-                        foreach ($settings['programs'] as $program) {
+                        foreach ($permissions_settings['programs'] as $program) {
                             ?>
                             <tr>
                             <td><?php esc_html_e($program['name']); ?></td>
-                            <td><?php echo (isset($programs_array[$program['id']])) ? '<input name="ma_accounts_settings[programs][' . esc_html($program['id']) . ']" type="checkbox" value="' . esc_html($program['id']) . '" checked="checked" />' : '<input name="ma_accounts_settings[programs][' . esc_html($program['id']) . ']" type="checkbox" value="' . esc_html($program['id']) . '" />'; ?></td>
+                            <td><?php echo (isset($programs_array[$program['id']])) ? '<input name="file_manager_settings[programs][' . esc_html($program['id']) . ']" type="checkbox" value="' . esc_html($program['id']) . '" checked="checked" />' : '<input name="file_manager_settings[programs][' . esc_html($program['id']) . ']" type="checkbox" value="' . esc_html($program['id']) . '" />'; ?></td>
                             </tr>
                             <?php
                         }
@@ -161,72 +168,101 @@ $settings = get_option('file_manager_settings');
         ?>
     </div>
 
-    <!--Dialog HTML for Belts and Special Programs-->
-    <!--Add Belt Dialog-->
-    <div id="add_belt" title="Add Belt">
-        <form id="add_belt_form" action="options.php#belts_programs" method="post">
-            <?php settings_fields('ma_accounts_settings'); ?>
-            <label class="ma_accounts_label">Title</label> <br />
-            <input id="belt" name="ma_accounts_settings[belts]" type="text" />
+    <!--Dialog HTML for Categories-->
+    <!--Add Category Dialog-->
+   <div id="add_category" title="Add Cateory">
+        <form id="add_category_form" action="options.php#categories" method="post">
+            <?php settings_fields('file_manager_settings'); ?>
+            <label class="file_manager_label">Name</label> <br />
+            <input id="category" name="file_manager_settings[name]" type="text" /> <br /><br />
+
+            <label class="file_manager_label">Sub-Categories</label>
+            <table>
+                <tbody>
+                    <?php
+                    foreach ($settings['categories'] as $key => $value) {
+                        ?>
+                        <tr>
+                            <td><?php esc_html_e($value['name']); ?></td>
+                            <td><input name="file_manager_settings[sub_categories][<?php echo (int) $value['id']; ?>]" type="checkbox" value="<?php echo (int) $value['id']; ?>" /></td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
+                <tbody>
+            </table>
         </form>
-        <div id="add_belt_notification" class="ui-state-error ui-corner-all ma_accounts_notification" style="display: none; margin-top: 10px;"><span class="ui-icon ui-icon-info" style="float: left;"></span>&nbsp;Your forgot to add a belt!</div>
+        <div id="add_category_notification" class="ui-state-error ui-corner-all ma_accounts_notification" style="display: none; margin-top: 10px;"><span class="ui-icon ui-icon-info" style="float: left;"></span>&nbsp;Your forgot to name your category!</div>
     </div>
 
-    <!--Add Program Dialog-->
-   <div id="add_program" title="Add Program">
-        <form id="add_program_form" action="options.php#belts_programs" method="post">
-            <?php settings_fields('ma_accounts_settings'); ?>
-            <label class="ma_accounts_label">Title</label> <br />
-            <input id="program" name="ma_accounts_settings[programs]" type="text" />
-        </form>
-        <div id="add_program_notification" class="ui-state-error ui-corner-all ma_accounts_notification" style="display: none; margin-top: 10px;"><span class="ui-icon ui-icon-info" style="float: left;"></span>&nbsp;Your forgot to add a program!</div>
-    </div>
-
-
-    <!--Delete Belt Dialog-->
+    <!--Update Category Dialog-->
     <?php
-    if (is_numeric($_GET['id']) && $_GET['action'] === 'delete_belt') {
+    if (is_numeric($_GET['id']) && $_GET['action'] === 'update_category') {
         $id = (int) $_GET['id'];
         ?>
-        <script type="text/javascript">jQuery(document).ready(function(){jQuery('#delete_belt').dialog('open')});</script>
+        <script type="text/javascript">jQuery(document).ready(function(){jQuery('#update_category').dialog('open')});</script>
         <?php
     }
     ?>
-    <div id="delete_belt" title="Delete Belt" style="text-align: center;">
+    <div id="update_category" title="Update Category" style="text-align: center;">
         <?php
-        if ($id <= count($settings['belts']) && $id > -1 && $_GET['action'] === 'delete_belt') {
+        if (array_key_exists($id, $settings['categories']) && $_GET['action'] === 'update_category') {
             ?>
-            Are you sure you want to delete the belt: <br />
-            <?php esc_html_e($settings['belts'][$id]['name']); ?>
-            <form id="delete_belt_form" action="options.php#belts_programs" method="post">
-                <?php settings_fields('ma_accounts_settings'); ?>
-                <input type="hidden" name="_wp_http_referer" value="/wp-admin/plugins.php?page=ma_accounts&amp;action=delete_belt">
-                <input name="ma_accounts_settings[belt_id]" type="hidden" value="<?php echo $id; ?>" />
+            <form id="update_category_form" action="options.php#categories" method="post">
+                <?php settings_fields('file_manager_settings'); ?>
+                <input type="hidden" name="_wp_http_referer" value="/wp-admin/plugins.php?page=file_manager&amp;action=update_category">
+                <input name="file_manager_settings[category_id]" type="hidden" value="<?php echo $id; ?>" />
+
+                <label class="file_manager_label">Name</label> <br />
+                <input id="category" name="file_manager_settings[name]" type="text" value="<?php esc_html_e($settings['categories'][$id]['name']); ?>" /> <br /><br />
+
+                <label class="file_manager_label">Sub-Categories</label>
+                <table>
+                    <tbody>
+                        <?php
+                        $temp = (!empty($settings['categories'][$id]['sub_categories'])) ? explode(',', $settings['categories'][$id]['sub_categories']) : '';
+                        foreach ($settings['categories'] as $key => $value) {
+                            ?>
+                            <tr>
+                                <td><?php esc_html_e($value['name']); ?></td>
+                                <?php
+                                if (is_array($temp) && in_array($value['id'], $temp)) {
+                                    echo '<td><input name="file_manager_settings[sub_categories][' . (int) $value['id'] . ']" type="checkbox" value="' . (int) $value['id'] . '" checked="checked" /></td>';
+                                } else {
+                                    echo '<td><input name="file_manager_settings[sub_categories][' . (int) $value['id'] . ']" type="checkbox" value="' . (int) $value['id'] . '" /></td>';
+                                }
+                                ?>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                    <tbody>
+                </table>
             </form>
             <?php
         }
         ?>
     </div>
 
-    <!--Delete Program Dialog-->
+    <!--Delete Category Dialog-->
     <?php
-    if (is_numeric($_GET['id']) && $_GET['action'] === 'delete_program') {
+    if (is_numeric($_GET['id']) && $_GET['action'] === 'delete_category') {
         $id = (int) $_GET['id'];
         ?>
-        <script type="text/javascript">jQuery(document).ready(function(){jQuery('#delete_program').dialog('open')});</script>
+        <script type="text/javascript">jQuery(document).ready(function(){jQuery('#delete_category').dialog('open')});</script>
         <?php
     }
     ?>
-    <div id="delete_program" title="Delete Program" style="text-align: center;">
+    <div id="delete_category" title="Delete Category" style="text-align: center;">
         <?php
-        if ($_GET['id'] <= count($settings['programs']) && $_GET['id'] > -1 && $_GET['action'] === 'delete_program') {
+        if (array_key_exists($id, $settings['categories']) && $_GET['action'] === 'delete_category') {
             ?>
-            Are you sure you want to delete the program: <br />
-            <?php esc_html_e($settings['programs'][$id]['name']); ?>
-            <form id="delete_program_form" action="options.php#belts_programs" method="post">
-                <?php settings_fields('ma_accounts_settings'); ?>
-                <input type="hidden" name="_wp_http_referer" value="/wp-admin/plugins.php?page=ma_accounts&amp;action=delete_program">
-                <input name="ma_accounts_settings[program_id]" type="hidden" value="<?php echo $id; ?>" />
+            Are you sure you want to delete the category: <br />
+            <?php esc_html_e($settings['categories'][$id]['name']); ?>
+            <form id="delete_category_form" action="options.php#categories" method="post">
+                <?php settings_fields('file_manager_settings'); ?>
+                <input type="hidden" name="_wp_http_referer" value="/wp-admin/plugins.php?page=file_manager&amp;action=delete_category">
+                <input name="file_manager_settings[category_id]" type="hidden" value="<?php echo $id; ?>" />
             </form>
             <?php
         }
