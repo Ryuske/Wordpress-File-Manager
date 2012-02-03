@@ -22,10 +22,14 @@ class file_manager {
             'id' => 0,
             'name' => 'My Cat',
             'sub_categories' => array('Something', 'Koala'),
+            'belt_access' => 0, //Id of a white belt
+            'programs_access' => 0 //If of Swat program
             ***Another entry into the array***
             'id' => 1
             'name' => 'My Cat->Something',
-            'sub_categories' => array('Hazah')
+            'sub_categories' => array('Hazah'),
+            'belt_access' => '', //Not specificed, i.e. public
+            'programs_access' => '' //Not specified, i.e. public
          */)
     );
 
@@ -107,6 +111,7 @@ class file_manager {
             'files' => array(),
             'categories' => array()
         );
+        $permissions_settings = get_option($this->options['permissions']['options_name']);
 
         foreach($valid_options as $key => &$value) {
             $value = (!array_key_exists($key, $input)) ? $this->options[$key] : $value;
@@ -126,6 +131,7 @@ class file_manager {
                     }
                     break;
                 case 'categories':
+                    //CodeBlock deleting categories
                     if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories']) && !array_key_exists('name', $input)) {
                         unset($valid_options['categories'][$input['category_id']]);
                         foreach ($valid_options['categories'] as $key => &$value) {
@@ -140,13 +146,16 @@ class file_manager {
                             }
                         }
                     }
+                    //End deleting categories
 
+                    //CodeBlock adding/updating categories
                     if (is_string($input['name'])) {
-                        $temp = array('', '');
+                        $temp = array('', '', '', '');
 
-                        if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories'])) {
+                        //Wether or not we're updating or adding.
+                        if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories'])) { //Upating
                             $temp[0] = $input['category_id'];
-                        } else {
+                        } else { //Adding
                             end($valid_options['categories']);
                             $temp[0] = key($valid_options['categories']);
                             if (isset($temp[0])) {
@@ -161,8 +170,22 @@ class file_manager {
                         }
                         $temp[1] = substr($temp[1], 0, -1);
 
-                        $valid_options['categories'][$temp[0]] = array('id' => $temp[0], 'name' => trim($input['name']), 'sub_categories' => $temp[1]);
+                        if ($this->options['permissions']['use']) {
+                            if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
+                                $temp[2] = $input['belt'];
+                            }
+
+                            foreach ($input['programs'] as $program_key) {
+                                if (array_key_exists($program_key, $permissions_settings['programs'])) {
+                                    $temp[3] .=  $program_key . ',';
+                                }
+                            }
+                            $temp[3] = substr($temp[3], 0, -1);
+                        }
+
+                        $valid_options['categories'][$temp[0]] = array('id' => $temp[0], 'name' => trim($input['name']), 'sub_categories' => $temp[1], 'belt_access' => $temp[2], 'programs_access' => $temp[3]);
                     }
+                    //End adding/updating categories
                     break;
                 default:
                     break;

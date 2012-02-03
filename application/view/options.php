@@ -51,12 +51,20 @@
             echo '<div>You haven\'t added any categories yet! <a href="#categories" onclick="jQuery(\'#add_category\').dialog(\'open\')">Add</a> one now.</div>';
         } else {
             ?>
-            <table class="file_manager_table">
+            <table class="file_manager_table" style="width: 1000px;">
                 <tbody>
                     <tr>
-                        <th></th>
-                        <th>Category</td>
-                        <th>Sub-Categories</th>
+                        <th style="width: 15px;"></th>
+                        <th style="width: 150px;">Category</th>
+                        <th style="width: 100px;">Sub-Categories</th>
+                        <?php
+                        if ($settings['permissions']['use']) {
+                            ?>
+                            <th style="width: 50px;">Belt Access</th>
+                            <th style="width: 90px;">Programs Access</th>
+                            <?php
+                        }
+                        ?>
                     </tr>
                     <?php
 
@@ -75,6 +83,19 @@
                             </td>
                             <td><?php esc_html_e($value['name']); ?></td>
                             <td><?php esc_html_e($temp); ?></td>
+                            <?php
+                            if ($settings['permissions']['use']) {
+                                $temp = explode(',', $value['programs_access']);
+                                foreach ($temp as $temp_key => &$temp_value) {
+                                    $temp_value = $permissions_settings['programs'][$temp_value]['name'];
+                                }
+                                $temp = implode(', ', $temp);
+                                ?>
+                                <td><?php esc_html_e($permissions_settings['belts'][$value['belt_access']]['name']); ?></td>
+                                <td><?php esc_html_e($temp); ?></td>
+                                <?php
+                            }
+                            ?>
                         </tr>
                         <?php
                     }
@@ -91,7 +112,7 @@
         <h1>Settings</h1>
         <form id="update_settings" name="update_settings" action="options.php#settings" method="post">
             <?php settings_fields('file_manager_settings'); ?>
-            <label>User Permissions</label>
+            <label>Use Permissions</label>
                 <input name="file_manager_settings[permissions][use]" type="checkbox" value="true" <?php echo ($settings['permissions']['use']) ? 'checked="checked"' : ''; ?> /> <br /><br />
 
             <label>Plugins Option Names (Used by User Permissions; Refer to plugin if you're unsure)</label> <br />
@@ -191,6 +212,40 @@
                     ?>
                 <tbody>
             </table>
+
+           <?php
+            if ($settings['permissions']['use']) {
+                ?>
+                <hr />
+                <label class="file_manager_label">Belts With Access</label> <br />
+                <select name="file_manager_settings[belt]">
+                    <option value="">None</option>
+                    <option disabled="disabled">-----------------</option>
+                    <?php
+                    foreach ($permissions_settings['belts'] as $key => $value) {
+                        echo '<option value="' . esc_html($value['id']) . '">' . esc_html($value['name']) . '</option>';
+                    }
+                    ?>
+                </select><br /><br />
+
+                <label class="file_manager_label">Programs With Access</label> <br />
+                <table>
+                    <tbody>
+                        <?php
+                        foreach ($permissions_settings['programs'] as $key => $value) {
+                            ?>
+                            <tr>
+                                <td><?php esc_html_e($value['name']); ?></td>
+                                <td><input name="file_manager_settings[programs][<?php echo (int) $value['id']; ?>]" type="checkbox" value="<?php echo (int) $value['id']; ?>" /></td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                    </tbody>
+                </table>
+                <?php
+            }
+            ?>
         </form>
         <div id="add_category_notification" class="ui-state-error ui-corner-all ma_accounts_notification" style="display: none; margin-top: 10px;"><span class="ui-icon ui-icon-info" style="float: left;"></span>&nbsp;Your forgot to name your category!</div>
     </div>
@@ -204,7 +259,7 @@
         <?php
     }
     ?>
-    <div id="update_category" title="Update Category" style="text-align: center;">
+    <div id="update_category" title="Update Category">
         <?php
         if (array_key_exists($id, $settings['categories']) && $_GET['action'] === 'update_category') {
             ?>
@@ -220,24 +275,56 @@
                 <table>
                     <tbody>
                         <?php
-                        $temp = (!empty($settings['categories'][$id]['sub_categories'])) ? explode(',', $settings['categories'][$id]['sub_categories']) : '';
+                        $temp = (NULL !== $settings['categories'][$id]['sub_categories'] && False !== $settings['categories'][$id]['sub_categories']) ? explode(',', $settings['categories'][$id]['sub_categories']) : '';
                         foreach ($settings['categories'] as $key => $value) {
+                            $checked = (is_array($temp) && in_array($value['id'], $temp)) ? 'checked="checked"' : '';
                             ?>
                             <tr>
                                 <td><?php esc_html_e($value['name']); ?></td>
-                                <?php
-                                if (is_array($temp) && in_array($value['id'], $temp)) {
-                                    echo '<td><input name="file_manager_settings[sub_categories][' . (int) $value['id'] . ']" type="checkbox" value="' . (int) $value['id'] . '" checked="checked" /></td>';
-                                } else {
-                                    echo '<td><input name="file_manager_settings[sub_categories][' . (int) $value['id'] . ']" type="checkbox" value="' . (int) $value['id'] . '" /></td>';
-                                }
-                                ?>
+                                <td><input name="file_manager_settings[sub_categories][<?php echo (int) $value['id']; ?>]" type="checkbox" value="<?php echo (int) $value['id']; ?>" <?php echo $checked; ?> /></td>
                             </tr>
                             <?php
                         }
                         ?>
                     <tbody>
                 </table>
+
+                <?php
+                if ($settings['permissions']['use']) {
+                    ?>
+                    <hr />
+                    <label class="file_manager_label">Belts With Access</label> <br />
+                    <select name="file_manager_settings[belt]">
+                        <option value="">None</option>
+                        <option disabled="disabled">-----------------</option>
+                        <?php
+                        foreach ($permissions_settings['belts'] as $key => $value) {
+                            $selected = (!empty($settings['categories'][$id]['belt_access']) && $settings['categories'][$id]['belt_access'] == $value['id']) ? 'selected="selected"' : '';
+                            echo '<option value="' . esc_html($value['id']) . '" ' . $selected . '>' . esc_html($value['name']) . '</option>';
+                        }
+                        ?>
+                    </select> <br /><br />
+
+                    <label class="file_manager_label">Programs With Access</label> <br />
+                    <table>
+                        <tbody>
+                            <?php
+                            $temp = (NULL !== $settings['categories'][$id]['programs_access'] && False !== $settings['categories'][$id]['programs_access']) ? explode(',', $settings['categories'][$id]['programs_access']) : '';
+                            foreach ($permissions_settings['programs'] as $key => $value) {
+                                $checked = (is_array($temp) && in_array($value['id'], $temp)) ? 'checked="checked"' : '';
+                                ?>
+                                <tr>
+                                    <td><?php esc_html_e($value['name']); ?></td>
+                                    <td><input name="file_manager_settings[programs][<?php echo (int) $value['id']; ?>]" type="checkbox" value="<?php echo (int) $value['id']; ?>" <?php echo $checked; ?> /></td>
+                                </tr>
+                                <?php
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                    <?php
+                }
+                ?>
             </form>
             <?php
         }

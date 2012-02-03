@@ -1,6 +1,8 @@
 Wordpress Plugin; File Manager
 
 TODO:
+Update tables for File Permissions to honor setting ['permissions']['use']
 Add functionality to File Permissions page in backend
 Continue Help page in backend
+Add permissions to actual file browser
 Add "pretty" urls
