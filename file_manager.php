@@ -14,7 +14,7 @@ class file_manager {
             'options_name' => 'ma_accounts_settings'
         ),
         'files' => array(/*****EXAMPLE*****
-            'name' => '3rd Brown Testing Sheet',
+            'id' => 102, //The id of the file
             'belt_access' => 5, //Id of purple belt
             'programs_access' => 0 //Id of Swat program
          */),
@@ -130,6 +130,24 @@ class file_manager {
                         $value['options_name'] = $this->options['permissions']['options_name'];
                     }
                     break;
+                case 'files':
+                    if (array_key_exists('file_id', $input) && $this->options['permissions']['use']) {
+                        $temp = array('', '');
+
+                        if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
+                            $temp[0] = $input['belt'];
+                        }
+
+                        foreach ($input['programs'] as $program_key) {
+                            if (array_key_exists($program_key, $permissions_settings['programs'])) {
+                                $temp[1] .=  $program_key . ',';
+                            }
+                        }
+                        $temp[1] = substr($temp[1], 0, -1);
+
+                        $valid_options['files'][(int) $input['file_id']] = array('id' => (int) $input['file_id'], 'belt_access' => $temp[0], 'programs_access' => $temp[1]);
+                    }
+                    break;
                 case 'categories':
                     //CodeBlock deleting categories
                     if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories']) && !array_key_exists('name', $input)) {
@@ -214,7 +232,7 @@ class file_manager {
 
     private function get_attachments() {
         $current_page = get_page_by_title('Students-LoggedIn');
-        $this->attachments = get_children('post_parent=' . $current_page->ID . '&post_type=attachment');
+        $this->attachments = get_children('post_parent=' . $current_page->ID . '&post_type=attachment&order=ASC');
     } //End get_attachments
 
     public function return_attachments() {

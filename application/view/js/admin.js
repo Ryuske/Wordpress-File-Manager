@@ -49,18 +49,17 @@ for (var i=0; i<ma_accounts.sortable_original_order.length; i++) {
 /*
  * Begin adding dialogs for jQuery UI
  */
-jQuery('#update_permissions').dialog({
+jQuery('#update_file').dialog({
     autoOpen: false,
     width: 350,
     modal: true,
     resizable: false,
-    draggable: false,
     buttons: {
         Update: function() {
-            jQuery('#edit_account').submit();
+            jQuery('#edit_file').submit();
         },
         Cancel: function() {
-            jQuery(this).dialog('close');
+            window.location = 'plugins.php?page=file_manager#file_permissions';
         }
     }
 }); //End #update_permission
@@ -70,7 +69,6 @@ jQuery('#add_category').dialog({
     width: 350,
     modal: true,
     resizable: false,
-    draggable: false,
     buttons: {
         Add: function() {
             if (jQuery('#add_category_form #category').val() !== '') {
@@ -91,7 +89,6 @@ jQuery('#update_category').dialog({
     width: 350,
     modal: true,
     resizable: false,
-    draggable: true,
     buttons: {
         Update: function() {
             if (jQuery('#update_category_form #category').val() !== '') {
@@ -113,7 +110,6 @@ jQuery('#delete_category').dialog({
         height: 140,
         modal: true,
         resizable: false,
-        draggable: false,
         buttons: {
             Delete: function() {
                 jQuery('#delete_category_form').submit();
