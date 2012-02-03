@@ -1,5 +1,6 @@
 Wordpress Plugin; File Manager
 
 TODO:
+Allow associating files to categories in backend
 Add permissions to actual file browser
 Add "pretty" urls
