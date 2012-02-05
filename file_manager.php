@@ -15,6 +15,7 @@ class file_manager {
         ),
         'files' => array(/*****EXAMPLE*****
             'id' => 102, //The id of the file
+            'categories' => array('id' => 0), //
             'belt_access' => 5, //Id of purple belt
             'programs_access' => 0 //Id of Swat program
          */),
@@ -131,21 +132,30 @@ class file_manager {
                     }
                     break;
                 case 'files':
-                    if (array_key_exists('file_id', $input) && $this->options['permissions']['use']) {
-                        $temp = array('', '');
+                    if (array_key_exists('file_id', $input)) {
+                        $temp = array('', '', '');
 
-                        if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
-                            $temp[0] = $input['belt'];
-                        }
-
-                        foreach ($input['programs'] as $program_key) {
-                            if (array_key_exists($program_key, $permissions_settings['programs'])) {
-                                $temp[1] .=  $program_key . ',';
+                        foreach ($input['file_categories'] as $category_value) {
+                            if (array_key_exists($category_value, $this->options['categories'])) {
+                                $temp[0] .= $category_value . ',';
                             }
                         }
-                        $temp[1] = substr($temp[1], 0, -1);
+                        $temp[0] = substr($temp[0], 0, -1);
 
-                        $valid_options['files'][(int) $input['file_id']] = array('id' => (int) $input['file_id'], 'belt_access' => $temp[0], 'programs_access' => $temp[1]);
+                        if ($this->options['permissions']['use']) {
+                            if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
+                                $temp[1] = $input['belt'];
+                            }
+
+                            foreach ($input['programs'] as $program_value) {
+                                if (array_key_exists($program_value, $permissions_settings['programs'])) {
+                                    $temp[2] .=  $program_value . ',';
+                                }
+                            }
+                            $temp[2] = substr($temp[2], 0, -1);
+                        }
+
+                        $valid_options['files'][(int) $input['file_id']] = array('id' => (int) $input['file_id'], 'categories' => $temp[0], 'belt_access' => $temp[1], 'programs_access' => $temp[2]);
                     }
                     break;
                 case 'categories':

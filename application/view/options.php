@@ -25,11 +25,12 @@
     <!--File permissions page-->
     <div id="file_permissions" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
         <h1>File Permissions</h1>
-        <table class="file_manager_table">
+        <table class="file_manager_table" style="width: 80%;">
             <tbody>
                 <tr>
-                    <?php echo ($settings['permissions']['use']) ? '<th></th>' : ''; ?>
+                    <th></th>
                     <th>File</th>
+                    <th style="width: 200px;">Categories</th>
                     <?php
                     if ($settings['permissions']['use']) {
                         ?>
@@ -41,10 +42,16 @@
                 </tr>
                 <?php
                 foreach ($file_manager->attachments as $key => $value) {
+                    $temp = explode(',', $settings['files'][$value->ID]['categories']);
+                    foreach ($temp as $temp_key => &$temp_value) {
+                        $temp_value = $settings['categories'][$temp_value]['name'];
+                    }
+                    $temp = implode(', ', $temp);
                     ?>
                     <tr>
-                        <?php echo ($settings['permissions']['use']) ? '<td><a href="plugins.php?page=file_manager&amp;id=<?php echo (int) $value->ID; ?>&amp;action=update_file#file_permissions"><span class="ui-icon ui-icon-pencil" style="position: relative; margin: 0 auto;"></span></a></td>' : ''; ?>
+                        <td><a href="plugins.php?page=file_manager&amp;id=<?php echo (int) $value->ID; ?>&amp;action=update_file#file_permissions"><span class="ui-icon ui-icon-pencil" style="position: relative; margin: 0 auto;"></span></a></td>
                         <td><?php esc_html_e($value->post_title); ?></td>
+                        <td><?php esc_html_e($temp); ?></td>
                         <?php
                         if ($settings['permissions']['use']) {
                             $temp = array('belt_access' => explode(',', $settings['files'][$value->ID]['belt_access']), 'programs_access' => explode(',', $settings['files'][$value->ID]['programs_access']));
@@ -186,7 +193,7 @@
     ?>
     <div id="update_file" title="Edit File">
         <?php
-        if (array_key_exists($id, $file_manager->attachments) && $_GET['action'] === 'update_file' && $settings['permissions']['use']) {
+        if (array_key_exists($id, $file_manager->attachments) && $_GET['action'] === 'update_file') {
             ?>
             <h2 style="text-align: center"><?php esc_html_e($file_manager->attachments[$id]->post_title); ?></h2>
             <form id="edit_file" action="options.php#file_permissions" method="post">
@@ -194,35 +201,54 @@
                 <input name="file_manager_settings[file_id]" type="hidden" value="<?php echo (int) $id; ?>" />
                 <input type="hidden" name="_wp_http_referer" value="/wp-admin/plugins.php?page=file_manager&amp;action=update_file">
 
-                <label class="file_manager_label">Belts With Access</label> <br />
-                <select name="file_manager_settings[belt]">
-                    <option value="">None</option>
-                    <option disabled="disabled">-----------------</option>
-                    <?php
-                    foreach ($permissions_settings['belts'] as $key => $value) {
-                        $selected = ((!empty($settings['files'][$id]['belt_access']) || $settings['files'][$id]['belt_access'] === '0') && $settings['files'][$id]['belt_access'] == $value['id']) ? 'selected="selected"' : '';
-                        echo '<option value="' . esc_html($value['id']) . '" ' . $selected . '>' . esc_html($value['name']) . '</option>';
-                    }
-                    ?>
-                </select> <br /><br />
-
-                <label class="file_manager_label">Programs With Access</label> <br />
+                <label class="file_manager_label">Categories</label> <br />
                 <table>
                     <tbody>
                         <?php
-                        $temp = (NULL !== $settings['files'][$id]['programs_access'] && False !== $settings['files'][$id]['programs_access']) ? explode(',', $settings['files'][$id]['programs_access']) : '';
-                        foreach ($permissions_settings['programs'] as $key => $value) {
-                            $checked = (is_array($temp) && in_array($value['id'], $temp)) ? 'checked="checked"' : '';
+                        foreach ($settings['categories'] as $category_key => $category_value) {
                             ?>
                             <tr>
-                                <td><?php esc_html_e($value['name']); ?></td>
-                                <td><input name="file_manager_settings[programs][<?php echo (int) $value['id']; ?>]" type="checkbox" value="<?php echo (int) $value['id']; ?>" <?php echo $checked; ?> /></td>
+                                <td><?php esc_html_e($category_value['name']); ?></td>
+                                <td><input name="file_manager_settings[file_categories][<?php echo (int) $category_value['id']; ?>]" type="checkbox" value="<?php echo (int) $category_value['id']; ?>" <?php echo $checked; ?> /></td>
                             </tr>
                             <?php
                         }
                         ?>
                     </tbody>
                 </table>
+
+                <?php if ($settings['permissions']['use']) { ?>
+                    <hr />
+                    <label class="file_manager_label">Belts With Access</label> <br />
+                    <select name="file_manager_settings[belt]">
+                        <option value="">None</option>
+                        <option disabled="disabled">-----------------</option>
+                        <?php
+                        foreach ($permissions_settings['belts'] as $key => $value) {
+                            $selected = ((!empty($settings['files'][$id]['belt_access']) || $settings['files'][$id]['belt_access'] === '0') && $settings['files'][$id]['belt_access'] == $value['id']) ? 'selected="selected"' : '';
+                            echo '<option value="' . esc_html($value['id']) . '" ' . $selected . '>' . esc_html($value['name']) . '</option>';
+                        }
+                        ?>
+                    </select> <br /><br />
+
+                    <label class="file_manager_label">Programs With Access</label> <br />
+                    <table>
+                        <tbody>
+                            <?php
+                            $temp = (NULL !== $settings['files'][$id]['programs_access'] && False !== $settings['files'][$id]['programs_access']) ? explode(',', $settings['files'][$id]['programs_access']) : '';
+                            foreach ($permissions_settings['programs'] as $key => $value) {
+                                $checked = (is_array($temp) && in_array($value['id'], $temp)) ? 'checked="checked"' : '';
+                                ?>
+                                <tr>
+                                    <td><?php esc_html_e($value['name']); ?></td>
+                                    <td><input name="file_manager_settings[programs][<?php echo (int) $value['id']; ?>]" type="checkbox" value="<?php echo (int) $value['id']; ?>" <?php echo $checked; ?> /></td>
+                                </tr>
+                                <?php
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                <?php } ?>
             </form>
             <?php
         }
