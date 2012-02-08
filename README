@@ -1,5 +1,7 @@
 Wordpress Plugin; File Manager
 
 TODO:
-Add permissions to actual file browser
+Add file viewer (/w permissions)
 Add "pretty" urls
+Add timestamp to belt order, and in the event that it's changed update permissions for categories & files
+Change foreach on arrays on array_walk

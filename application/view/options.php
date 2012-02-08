@@ -206,6 +206,12 @@
                     <tbody>
                         <?php
                         foreach ($settings['categories'] as $category_key => $category_value) {
+                            $checked = '';
+                            array_walk(explode(',', $settings['files'][$id]['categories']), function($file_value, $file_key) use(&$checked, $category_value) {
+                                if ($file_value == $category_value['id']) {
+                                    $checked = 'checked="checked"';
+                                }
+                            });
                             ?>
                             <tr>
                                 <td><?php esc_html_e($category_value['name']); ?></td>
@@ -365,7 +371,7 @@
                         <option disabled="disabled">-----------------</option>
                         <?php
                         foreach ($permissions_settings['belts'] as $key => $value) {
-                            $selected = (!empty($settings['categories'][$id]['belt_access']) && $settings['categories'][$id]['belt_access'] == $value['id']) ? 'selected="selected"' : '';
+                            $selected = ('' != $settings['categories'][$id]['belt_access'] && $settings['categories'][$id]['belt_access'] == $value['id']) ? 'selected="selected"' : '';
                             echo '<option value="' . esc_html($value['id']) . '" ' . $selected . '>' . esc_html($value['name']) . '</option>';
                         }
                         ?>
