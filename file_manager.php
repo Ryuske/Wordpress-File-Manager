@@ -332,10 +332,14 @@ class file_manager {
         global $file_manager, $current_user;
         $settings = get_option('file_manager_settings');
         if (!empty($file_manager->attachments[get_query_var('fm_attachment')])) {
-            $file_manager->current_attachment = $file_manager->attachments[get_query_var('fm_attachment')];
-            ob_start();
-            include dirname(__FILE__) . '/application/view/attachment.php';
-            return ob_get_clean();
+             $file_manager->current_attachment = $file_manager->attachments[get_query_var('fm_attachment')];
+            if ($file_manager->check_permissions($current_user->ID, $settings['files'][$file_manager->current_attachment->ID]['belt_access'], $settings['files'][$file_manager->current_attachment->ID]['programs_access'])) {
+                ob_start();
+                include dirname(__FILE__) . '/application/view/attachment.php';
+                return ob_get_clean();
+            } else {
+                echo '<meta http-equiv="refresh" content="0;url=' . esc_html($_SERVER['HTTP_REFERER']) . '">';
+            }
         } else {
             $file_manager->current_category = get_query_var('fm_category');
             ob_start();
