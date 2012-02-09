@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: File Manager
-Description: Simple file manager, with custom permissions
+Description: Simple file manager, with custom permissions (To be used with PHP >=5.3)
 Version: 1.5
 Author: Kenyon Haliwell
 License: GPL2
