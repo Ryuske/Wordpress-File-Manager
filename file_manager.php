@@ -2,7 +2,7 @@
 /*
 Plugin Name: File Manager
 Description: Simple file manager, with custom permissions
-Version: 1.0
+Version: 1.5
 Author: Kenyon Haliwell
 License: GPL2
  */
