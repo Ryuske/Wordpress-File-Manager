@@ -1,4 +1,5 @@
-Wordpress Plugin; File Manager
+Wordpress Plugin; File Manager.
+To be used with PHP versions <5.3
 
 TODO:
 Separate file_manager.php and possibly options.php into multiple files
