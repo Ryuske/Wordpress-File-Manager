@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: File Manager
-Description: Simple file manager, with custom permissions
+Description: Simple file manager, with custom permissions. (This version is to be used with PHP <5.3)
 Version: 1.5
 Author: Kenyon Haliwell
 License: GPL2
@@ -262,11 +262,11 @@ class file_manager {
         $temp = array(explode(',', get_user_meta($user, 'ma_accounts_programs', true)), False);
         $temp[0] = ($temp[0][0] != '') ? $temp[0] : '';
         if (!empty($programs) || $programs === '0') {
-            array_walk(explode(',', $programs), function($programs_value, $programs_key) use(&$temp) {
+            foreach (explode(',', $programs) as $programs_key => $programs_value) {
                 if (is_array($temp[0]) && in_array($programs_value, $temp[0])) {
                     $temp[1] = True;
                 }
-            });
+            }
         }
 
         if (

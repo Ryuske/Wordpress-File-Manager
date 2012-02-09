@@ -207,11 +207,11 @@
                         <?php
                         foreach ($settings['categories'] as $category_key => $category_value) {
                             $checked = '';
-                            array_walk(explode(',', $settings['files'][$id]['categories']), function($file_value, $file_key) use(&$checked, $category_value) {
+                            foreach (explode(',', $settings['files'][$id]['categories']) as $file_key => $file_value) {
                                 if ($file_value == $category_value['id']) {
                                     $checked = 'checked="checked"';
                                 }
-                            });
+                            }
                             ?>
                             <tr>
                                 <td><?php esc_html_e($category_value['name']); ?></td>
