@@ -1,7 +1,8 @@
 Wordpress Plugin; File Manager
 
 TODO:
-Chnage audio to play with jwplayer
+Separate file_manager.php and possibly options.php into multiple files
+Possibly add pagination to backend file/category manager
 Figure out how to get a parent page link to work.
 Add "pretty" urls
 Add timestamp to belt order, and in the event that it's changed update permissions for categories & files

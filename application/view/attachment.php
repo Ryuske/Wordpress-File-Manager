@@ -14,25 +14,43 @@
                         break;
                     case 'audio/mpeg':
                         ?>
-                            <embed type="application/x-shockwave-flash" wmode="transparent" src="http://www.google.com/reader/ui/3523697345-audio-player.swf?audioUrl=<?php echo $file_manager->current_attachment->guid; ?>" height="27" width="320"></embed>
+                        <div id='audiospace'>This text will be replaced</div>
+                        <script type='text/javascript'>
+                            jQuery(document).ready(function() {
+                                jwplayer('audiospace').setup({
+                                    'flashplayer': '<?php echo plugins_url('misc/player.swf', __FILE__); ?>',
+                                    'file': '<?php echo $file_manager->current_attachment->guid; ?>',
+                                    'autostart': 'true',
+                                    'height': '24',
+                                    'width': '470',
+                                    'controlbar': 'bottom',
+                                    'frontcolor': '000000',
+                                    'lightcolor': '000000',
+                                    'screencolor': '000000',
+                                    'skin': '<?php echo plugins_url('misc/beelden.zip', __FILE__); ?>',
+                                    'volume': '80'
+                                });
+                            });
+                        </script>
                         <?php
                         break;
                     case 'video/x-flv':
                         ?>
-                        <script type='text/javascript' src="<?php echo plugins_url('js/jwplayer.js', __FILE__); ?>"></script>
-                        <div id='mediaspace'>This text will be replaced</div>
+                        <div id='videospace'>This text will be replaced</div>
                         <script type='text/javascript'>
-                        jwplayer('mediaspace').setup({
-                            'flashplayer': '<?php echo plugins_url('misc/player.swf', __FILE__); ?>',
-                            'file': '<?php echo $file_manager->current_attachment->guid; ?>',
-                            'autostart': 'true',
-                            'controlbar': 'bottom',
-                            'frontcolor': '000000',
-                            'lightcolor': '000000',
-                            'screencolor': '000000',
-                            'skin': '<?php echo plugins_url('misc/beelden.zip', __FILE__); ?>',
-                            'volume': '80'
-                        });
+                            jQuery(document).ready(function() {
+                                jwplayer('videospace').setup({
+                                    'flashplayer': '<?php echo plugins_url('misc/player.swf', __FILE__); ?>',
+                                    'file': '<?php echo $file_manager->current_attachment->guid; ?>',
+                                    'autostart': 'true',
+                                    'controlbar': 'bottom',
+                                    'frontcolor': '000000',
+                                    'lightcolor': '000000',
+                                    'screencolor': '000000',
+                                    'skin': '<?php echo plugins_url('misc/beelden.zip', __FILE__); ?>',
+                                    'volume': '80'
+                                });
+                            });
                         </script>
                         <?php
                         break;

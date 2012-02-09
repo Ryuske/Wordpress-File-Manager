@@ -48,6 +48,7 @@ class file_manager {
         wp_register_style('black-tie', plugins_url('application/view/css/jquery-ui.css', __FILE__));
         wp_register_style('fileManagerStyle', plugins_url('application/view/css/file_manager.css', __FILE__));
         wp_register_script('fileManagerScript', plugins_url('application/view/js/admin.js', __FILE__));
+        wp_register_script('fileManagerJwplayer', plugins_url('application/view/js/jwplayer.js', __FILE__));
 
         register_activation_hook(__FILE__, array(&$this, 'activate_plugin'));
 
@@ -287,32 +288,6 @@ class file_manager {
         return False;
     } //End check_permissions
 
-    public function return_attachments() {
-        $return = '';
-        foreach ($this->attachments as $attachment) {
-            switch ($attachment->post_mime_type) {
-                case 'image/jpeg':
-                    $type = 'Image';
-                    break;
-                case 'audio/mpeg':
-                    $type = 'Audio';
-                    break;
-                case 'video/mpeg':
-                    $type = 'Video';
-                    break;
-                default:
-                    $type = 'Text';
-            }
-            $return .= '
-                <tr>
-                <td class="td"><a href="?fm_attachment=' . $attachment->ID . '">' . $attachment->post_title . '</a></td>
-                <td class="td">' . $type . '</td>
-                </tr>
-            ';
-        }
-        return $return;
-    } //End return_attachments
-
     public function render_backend() {
         global $file_manager;
         if (current_user_can('administrator')) {
@@ -334,7 +309,8 @@ class file_manager {
         wp_enqueue_style('fileManagerStyle');
 
         if (!empty($file_manager->attachments[get_query_var('fm_attachment')])) {
-             $file_manager->current_attachment = $file_manager->attachments[get_query_var('fm_attachment')];
+            wp_enqueue_script('fileManagerJwplayer');
+            $file_manager->current_attachment = $file_manager->attachments[get_query_var('fm_attachment')];
              if ($file_manager->check_permissions($current_user->ID, $settings['files'][$file_manager->current_attachment->ID]['belt_access'], $settings['files'][$file_manager->current_attachment->ID]['programs_access'])) {
                 ob_start();
                 include dirname(__FILE__) . '/application/view/attachment.php';
