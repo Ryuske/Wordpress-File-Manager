@@ -108,7 +108,7 @@
                     foreach ($settings['categories'] as $key => $value) {
                         $temp = explode(',', $value['sub_categories']);
                         foreach ($temp as $temp_key => &$temp_value) {
-                            $temp_value = $settings['categories'][$temp_value]['name'];
+                            $temp_value = substr($settings['categories'][$temp_value]['name'], strlen($value['name'])+2);
                         }
                         $temp = implode(', ', $temp);
                         ?>
@@ -274,12 +274,14 @@
                 <tbody>
                     <?php
                     foreach ($settings['categories'] as $key => $value) {
-                        ?>
-                        <tr>
-                            <td><?php esc_html_e($value['name']); ?></td>
-                            <td><input name="file_manager_settings[sub_categories][<?php echo (int) $value['id']; ?>]" type="checkbox" value="<?php echo (int) $value['id']; ?>" /></td>
-                        </tr>
-                        <?php
+                        if (!preg_match('/->/', $value['name'])) {
+                            ?>
+                            <tr>
+                                <td><?php esc_html_e($value['name']); ?></td>
+                                <td><input name="file_manager_settings[sub_categories][<?php echo (int) $value['id']; ?>]" type="checkbox" value="<?php echo (int) $value['id']; ?>" /></td>
+                            </tr>
+                            <?php
+                        }
                     }
                     ?>
                 <tbody>
@@ -349,13 +351,15 @@
                         <?php
                         $temp = (NULL !== $settings['categories'][$id]['sub_categories'] && False !== $settings['categories'][$id]['sub_categories']) ? explode(',', $settings['categories'][$id]['sub_categories']) : '';
                         foreach ($settings['categories'] as $key => $value) {
+                            if (preg_match('/' . $settings['categories'][$id]['name'] . '->/', $value['name'])) {
                             $checked = (is_array($temp) && in_array($value['id'], $temp)) ? 'checked="checked"' : '';
                             ?>
                             <tr>
-                                <td><?php esc_html_e($value['name']); ?></td>
+                                <td><?php esc_html_e(substr($value['name'], strlen($settings['categories'][$id]['name'])+2)); ?></td>
                                 <td><input name="file_manager_settings[sub_categories][<?php echo (int) $value['id']; ?>]" type="checkbox" value="<?php echo (int) $value['id']; ?>" <?php echo $checked; ?> /></td>
                             </tr>
                             <?php
+                            }
                         }
                         ?>
                     <tbody>

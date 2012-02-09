@@ -7,7 +7,7 @@ Author: Kenyon Haliwell
 License: GPL2
  */
 class file_manager {
-    public $attachments, $current_attachment, $current_category;
+    public $attachments, $current_attachment, $current_category, $parent_page;
     public $options = array(
         'permissions' => array(
             'use' => True,
@@ -331,9 +331,11 @@ class file_manager {
     public function file_func() {
         global $file_manager, $current_user;
         $settings = get_option('file_manager_settings');
+        wp_enqueue_style('fileManagerStyle');
+
         if (!empty($file_manager->attachments[get_query_var('fm_attachment')])) {
              $file_manager->current_attachment = $file_manager->attachments[get_query_var('fm_attachment')];
-            if ($file_manager->check_permissions($current_user->ID, $settings['files'][$file_manager->current_attachment->ID]['belt_access'], $settings['files'][$file_manager->current_attachment->ID]['programs_access'])) {
+             if ($file_manager->check_permissions($current_user->ID, $settings['files'][$file_manager->current_attachment->ID]['belt_access'], $settings['files'][$file_manager->current_attachment->ID]['programs_access'])) {
                 ob_start();
                 include dirname(__FILE__) . '/application/view/attachment.php';
                 return ob_get_clean();

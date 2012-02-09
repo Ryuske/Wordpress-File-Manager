@@ -3,6 +3,8 @@
 .file_manager_table tr { /*color: #FFF; background-color: gray;*/ }
 .file_manager_table td { vertical-align: middle; }
 
+.file_manager_listings_table .category { background-color: whitesmoke; }
+
 .file_manager_ul { list-style-type: none; margin: 0; padding: 0; width: 140px; }
 .file_manager_ul_trash { height: 23px; padding: 3px 0; }
 .file_manager_ul table { border-collapse: collapse; }

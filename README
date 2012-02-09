@@ -1,8 +1,8 @@
 Wordpress Plugin; File Manager
 
 TODO:
-Make sub-sub categories work... (i.e. Koala->Meow)
-Add referer variable for category and sub-category (used for Back link)
+Chnage audio to play with jwplayer
+Figure out how to get a parent page link to work.
 Add "pretty" urls
 Add timestamp to belt order, and in the event that it's changed update permissions for categories & files
 Change foreach on arrays on array_walk

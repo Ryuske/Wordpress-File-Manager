@@ -2,8 +2,23 @@
     .table, .th, .td { border: 1px solid #000; }
     .th { font-size: 25px !important; }
 </style>
-<h2 style="display: inline;">VIP Content</h2> <h4 style="display: inline; position: relative; bottom: 1px; margin-left: 10px;"><a href="<?php esc_html_e($_SERVER['HTTP_REFERER']); ?>">Back</a></h4>
-<table class="table">
+<?php
+$title = (!empty($file_manager->current_category) || $file_manager->current_category === '0') ? $settings['categories'][$file_manager->current_category]['name'] : 'VIP Content';
+if (preg_match('/->/', $title)) {
+    $title = implode(', ', explode('->', $title));
+}
+?>
+<h2 style="display: inline;"><?php esc_html_e($title); ?></h2>
+<?php
+if ($title != 'VIP Content') {
+    /*
+    ?>
+    <h4 style="display: inline; position: relative; bottom: 1px; margin-left: 10px;"><a href="<?php esc_html_e($file_manager->referer['category']); ?>">Back</a></h4>
+    <?php
+     */
+}
+?>
+<table class="file_manager_listings_table">
     <tbody>
         <?php
         if ((!empty($file_manager->current_category) || $file_manager->current_category === '0') && $file_manager->check_permissions($current_user->ID, $settings['categories'][$file_manager->current_category]['belt_access'], $settings['categories'][$file_manager->current_category]['programs_access'])) {
@@ -12,15 +27,22 @@
                 $display_categories[] = $settings['categories'][$category_value];
             });
         } else {
-            $display_categories = $settings['categories'];
+            $temp = $settings['categories'];
+            $display_categories = array();
+            array_walk($temp, function($category_value, $category_key) use(&$display_categories) {
+                if (!preg_match('/->/', $category_value['name'])) {
+                    $display_categories[] = $category_value;
+                }
+            });
         }
         if ($display_categories[0] != '') {
             $file_manager->sort_array_by_element($display_categories, 'name');
             foreach ($display_categories as $category_value) {
                 if ($file_manager->check_permissions($current_user->ID, $category_value['belt_access'], $category_value['programs_access'])) {
+                    $title = (preg_match('/->/', $category_value['name'])) ? substr($category_value['name'], strlen($settings['categories'][$file_manager->current_category]['name'])+2) : $category_value['name'];
                     ?>
                     <tr>
-                        <td><a href="?fm_category=<?php echo (int) $category_value['id']; ?>"><?php esc_html_e($category_value['name']); ?></a></td>
+                        <td class="category"><a href="?fm_category=<?php echo (int) $category_value['id']; ?>"><?php esc_html_e($title); ?></a></td>
                     </tr>
                     <?php
                 }
@@ -37,7 +59,7 @@
             if ($file_manager->check_permissions($current_user->ID, $settings['files'][$file_value->ID]['belt_access'], $settings['files'][$file_value->ID]['programs_access'])) {
                 ?>
                 <tr>
-                    <td><a href="?fm_attachment=<?php echo (int) $file_value->ID ?>"><?php esc_html_e($file_value->post_title); ?></a></td>
+                    <td class="file"><a href="?fm_attachment=<?php echo (int) $file_value->ID ?>"><?php esc_html_e($file_value->post_title); ?></a></td>
                 <tr>
                 <?php
             }

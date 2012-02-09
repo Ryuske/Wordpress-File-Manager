@@ -1,5 +1,5 @@
 <h2 style="margin-bottom: 0"><?php esc_html_e($file_manager->current_attachment->post_title); ?></h2>
-<a href="/<?php esc_html_e($_SERVER['HTTP_REFERER']); ?>">Back</a><br />
+<!--<a href="<?php //esc_html_e($file_manager->referer['category']); ?>">Back</a>--><br />
 <table style="margin-bottom: 0;">
     <tbody>
         <tr>
@@ -27,9 +27,11 @@
                             'file': '<?php echo $file_manager->current_attachment->guid; ?>',
                             'autostart': 'true',
                             'controlbar': 'bottom',
-                            'width': '320',
-                            'height': '240',
-                            'allowfullscreen': 'false'
+                            'frontcolor': '000000',
+                            'lightcolor': '000000',
+                            'screencolor': '000000',
+                            'skin': '<?php echo plugins_url('misc/beelden.zip', __FILE__); ?>',
+                            'volume': '80'
                         });
                         </script>
                         <?php
@@ -42,4 +44,4 @@
         </tr>
     </tbody>
 </table>
-<a href="/<?php esc_html_e($_SERVER['HTTP_REFERER']); ?>">Back</a>
+<!--<a href="<?php //esc_html_e($file_manager->referer['category']); ?>">Back</a>-->
