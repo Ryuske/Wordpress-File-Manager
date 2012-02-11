@@ -208,7 +208,7 @@
                         foreach ($settings['categories'] as $category_key => $category_value) {
                             $checked = '';
                             foreach (explode(',', $settings['files'][$id]['categories']) as $file_key => $file_value) {
-                                if ($file_value == $category_value['id']) {
+                                if ($file_value != '' && $file_value == $category_value['id']) {
                                     $checked = 'checked="checked"';
                                 }
                             }

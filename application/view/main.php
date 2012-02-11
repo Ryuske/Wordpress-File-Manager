@@ -23,17 +23,17 @@ if ($title != 'VIP Content') {
         <?php
         if ((!empty($file_manager->current_category) || $file_manager->current_category === '0') && $file_manager->check_permissions($current_user->ID, $settings['categories'][$file_manager->current_category]['belt_access'], $settings['categories'][$file_manager->current_category]['programs_access'])) {
             $display_categories = array();
-            array_walk(explode(',', $settings['categories'][$file_manager->current_category]['sub_categories']), function($category_value, $category_key) use(&$display_categories, $settings) {
+            foreach (explode(',', $settings['categories'][$file_manager->current_category]['sub_categories']) as $category_key => $category_value) {
                 $display_categories[] = $settings['categories'][$category_value];
-            });
+            }
         } else {
             $temp = $settings['categories'];
             $display_categories = array();
-            array_walk($temp, function($category_value, $category_key) use(&$display_categories) {
+            foreach ($temp as $category_key => $category_value) {
                 if (!preg_match('/->/', $category_value['name'])) {
                     $display_categories[] = $category_value;
                 }
-            });
+            }
         }
         if ($display_categories[0] != '') {
             $file_manager->sort_array_by_element($display_categories, 'name');
@@ -50,11 +50,11 @@ if ($title != 'VIP Content') {
         }
 
         $display_files = array();
-        array_walk($settings['files'], function($file_value, $file_key) use(&$display_files, $file_manager) {
+        foreach ($settings['files'] as $file_key => $file_value) {
             if (in_array($file_manager->current_category, explode(',', $file_value['categories']))) {
                 $display_files[] = $file_manager->attachments[$file_value['id']];
             }
-        });
+        }
         foreach ($display_files as $file_value) {
             if ($file_manager->check_permissions($current_user->ID, $settings['files'][$file_value->ID]['belt_access'], $settings['files'][$file_value->ID]['programs_access'])) {
                 ?>

@@ -136,24 +136,28 @@ class file_manager {
                 if (array_key_exists('file_id', $input)) {
                     $temp = array('', '', '');
 
-                    foreach ($input['file_categories'] as $category_value) {
-                        if (array_key_exists($category_value, $this->options['categories'])) {
-                            $temp[0] .= $category_value . ',';
+                    if (array_key_exists('file_categories', $input)) {
+                        foreach ($input['file_categories'] as $category_value) {
+                            if (array_key_exists($category_value, $this->options['categories'])) {
+                                $temp[0] .= $category_value . ',';
+                            }
                         }
+                        $temp[0] = substr($temp[0], 0, -1);
                     }
-                    $temp[0] = substr($temp[0], 0, -1);
 
                     if ($this->options['permissions']['use']) {
                         if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
                             $temp[1] = $input['belt'];
                         }
 
-                        foreach ($input['programs'] as $program_value) {
-                            if (array_key_exists($program_value, $permissions_settings['programs'])) {
-                                $temp[2] .=  $program_value . ',';
+                        if (array_key_exists('programs', $input)) {
+                            foreach ($input['programs'] as $program_value) {
+                                if (array_key_exists($program_value, $permissions_settings['programs'])) {
+                                    $temp[2] .=  $program_value . ',';
+                                }
                             }
+                            $temp[2] = substr($temp[2], 0, -1);
                         }
-                        $temp[2] = substr($temp[2], 0, -1);
                     }
 
                     $valid_options['files'][(int) $input['file_id']] = array('id' => (int) $input['file_id'], 'categories' => $temp[0], 'belt_access' => $temp[1], 'programs_access' => $temp[2]);
@@ -194,19 +198,23 @@ class file_manager {
                         }
                     }
 
-                    foreach ($input['sub_categories'] as $cat_key => $cat_value) {
-                        $temp[1] .= $cat_key . ',';
+                    if (array_key_exists('sub_categories', $input)) {
+                        foreach ($input['sub_categories'] as $cat_key => $cat_value) {
+                            $temp[1] .= $cat_key . ',';
+                        }
+                        $temp[1] = substr($temp[1], 0, -1);
                     }
-                    $temp[1] = substr($temp[1], 0, -1);
 
                     if ($this->options['permissions']['use']) {
                         if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
                             $temp[2] = $input['belt'];
                         }
 
-                        foreach ($input['programs'] as $program_key) {
-                            if (array_key_exists($program_key, $permissions_settings['programs'])) {
-                                $temp[3] .=  $program_key . ',';
+                        if (array_key_exists('programs', $input)) {
+                            foreach ($input['programs'] as $program_key) {
+                                if (array_key_exists($program_key, $permissions_settings['programs'])) {
+                                    $temp[3] .=  $program_key . ',';
+                                }
                             }
                         }
                         $temp[3] = substr($temp[3], 0, -1);
