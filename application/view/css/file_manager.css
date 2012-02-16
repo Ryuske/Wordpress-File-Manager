@@ -1,7 +1,7 @@
 .file_manager_table { border-collapse: collapse; width: 50%; }
 .file_manager_table th, .file_manager_table td { border: 1px solid maroon; height: 30px; text-align: center; }
-.file_manager_table tr { /*color: #FFF; background-color: gray;*/ }
 .file_manager_table td { vertical-align: middle; }
+.file_manager_table .buttons { width: 21px; }
 
 .file_manager_listings_table .category { background-color: whitesmoke; }
 
