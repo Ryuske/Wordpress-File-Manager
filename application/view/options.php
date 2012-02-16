@@ -30,7 +30,7 @@
                 <tr>
                     <th></th>
                     <th>File</th>
-                    <th style="width: 200px;">Categories</th>
+                    <th style="width: 350px;">Categories</th>
                     <?php
                     if ($settings['permissions']['use']) {
                         ?>
@@ -113,7 +113,7 @@
                         $temp = implode(', ', $temp);
                         ?>
                         <tr>
-                            <td>
+                            <td class="buttons">
                                 <a href="plugins.php?page=file_manager&amp;id=<?php echo (int) $value['id']; ?>&amp;action=update_category#categories"><span class="ui-icon ui-icon-pencil" style="float: left"></span></a>
                                 <a href="plugins.php?page=file_manager&amp;id=<?php echo (int) $value['id']; ?>&amp;action=delete_category#categories"><span class="ui-icon ui-icon-trash"></span></a>
                             </td>

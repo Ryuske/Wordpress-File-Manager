@@ -7,4 +7,7 @@ Possibly add pagination to backend file/category manager
 Figure out how to get a parent page link to work.
 Add "pretty" urls
 Add timestamp to belt order, and in the event that it's changed update permissions for categories & files
-Change foreach on arrays on array_walk
+Fix sub-categories to automatically update when you add a Category->Sub; instead of having to click the box
+Localize file uploading, auto attach, and add ability to unatach (if possible)
+When changing attachment page, update all current attachments to new page
+Allow options to change sorting order for files & categorys. (Either custom, or alphabetically)
