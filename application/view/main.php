@@ -3,7 +3,7 @@
     .th { font-size: 25px !important; }
 </style>
 <?php
-$title = (!empty($file_manager->current_category) || $file_manager->current_category === '0') ? $settings['categories'][$file_manager->current_category]['name'] : 'VIP Content';
+$title = (!empty($file_manager['generate_views']->current_category) || $file_manager['generate_views']->current_category === '0') ? $settings['categories'][$file_manager['generate_views']->current_category]['name'] : 'VIP Content';
 if (preg_match('/->/', $title)) {
     $title = implode(', ', explode('->', $title));
 }
@@ -21,9 +21,9 @@ if ($title != 'VIP Content') {
 <table class="file_manager_listings_table">
     <tbody>
         <?php
-        if ((!empty($file_manager->current_category) || $file_manager->current_category === '0') && $file_manager->check_permissions($current_user->ID, $settings['categories'][$file_manager->current_category]['belt_access'], $settings['categories'][$file_manager->current_category]['programs_access'])) {
+        if ((!empty($file_manager['generate_views']->current_category) || $file_manager['generate_views']->current_category === '0') && $file_manager['generate_views']->check_permissions($current_user->ID, $settings['categories'][$file_manager['generate_views']->current_category]['belt_access'], $settings['categories'][$file_manager['generate_views']->current_category]['programs_access'])) {
             $display_categories = array();
-            array_walk(explode(',', $settings['categories'][$file_manager->current_category]['sub_categories']), function($category_value, $category_key) use(&$display_categories, $settings) {
+            array_walk(explode(',', $settings['categories'][$file_manager['generate_views']->current_category]['sub_categories']), function($category_value, $category_key) use(&$display_categories, $settings) {
                 $display_categories[] = $settings['categories'][$category_value];
             });
         } else {
@@ -36,10 +36,10 @@ if ($title != 'VIP Content') {
             });
         }
         if ($display_categories[0] != '') {
-            $file_manager->sort_array_by_element($display_categories, 'name');
+            $file_manager['main']->sort_array_by_element($display_categories, 'name');
             foreach ($display_categories as $category_value) {
-                if ($file_manager->check_permissions($current_user->ID, $category_value['belt_access'], $category_value['programs_access'])) {
-                    $title = (preg_match('/->/', $category_value['name'])) ? substr($category_value['name'], strlen($settings['categories'][$file_manager->current_category]['name'])+2) : $category_value['name'];
+                if ($file_manager['main']->check_permissions($current_user->ID, $category_value['belt_access'], $category_value['programs_access'])) {
+                    $title = (preg_match('/->/', $category_value['name'])) ? substr($category_value['name'], strlen($settings['categories'][$file_manager['generate_views']->current_category]['name'])+2) : $category_value['name'];
                     ?>
                     <tr>
                         <td class="category"><a href="?fm_category=<?php echo (int) $category_value['id']; ?>"><?php esc_html_e($title); ?></a></td>
@@ -51,12 +51,12 @@ if ($title != 'VIP Content') {
 
         $display_files = array();
         array_walk($settings['files'], function($file_value, $file_key) use(&$display_files, $file_manager) {
-            if (in_array($file_manager->current_category, explode(',', $file_value['categories']))) {
-                $display_files[] = $file_manager->attachments[$file_value['id']];
+            if (in_array($file_manager['generate_views']->current_category, explode(',', $file_value['categories']))) {
+                $display_files[] = $file_manager['generate_views']->attachments[$file_value['id']];
             }
         });
         foreach ($display_files as $file_value) {
-            if ($file_manager->check_permissions($current_user->ID, $settings['files'][$file_value->ID]['belt_access'], $settings['files'][$file_value->ID]['programs_access'])) {
+            if ($file_manager['main']->check_permissions($current_user->ID, $settings['files'][$file_value->ID]['belt_access'], $settings['files'][$file_value->ID]['programs_access'])) {
                 ?>
                 <tr>
                     <td class="file"><a href="?fm_attachment=<?php echo (int) $file_value->ID ?>"><?php esc_html_e($file_value->post_title); ?></a></td>

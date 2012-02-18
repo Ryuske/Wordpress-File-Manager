@@ -2,7 +2,6 @@ Wordpress Plugin; File Manager.
 To be used with PHP versions >=5.3
 
 TODO:
-Separate file_manager.php and possibly options.php into multiple files
 Possibly add pagination to backend file/category manager
 Figure out how to get a parent page link to work.
 Add "pretty" urls

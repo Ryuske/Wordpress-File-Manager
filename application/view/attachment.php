@@ -1,16 +1,16 @@
-<h2 style="margin-bottom: 0"><?php esc_html_e($file_manager->current_attachment->post_title); ?></h2>
+<h2 style="margin-bottom: 0"><?php esc_html_e($file_manager['generate_views']->current_attachment->post_title); ?></h2>
 <!--<a href="<?php //esc_html_e($file_manager->referer['category']); ?>">Back</a>--><br />
 <table style="margin-bottom: 0;">
     <tbody>
         <tr>
             <td>
                 <?php
-                switch($file_manager->current_attachment->post_mime_type) {
+                switch($file_manager['generate_views']->current_attachment->post_mime_type) {
                     case 'image/jpeg':
-                        echo '<img src="' . wp_get_attachment_url($file_manager->current_attachment->ID) . '" alt="There was a problem loading the picture." />';
+                        echo '<img src="' . wp_get_attachment_url($file_manager['generate_views']->current_attachment->ID) . '" alt="There was a problem loading the picture." />';
                         break;
                     case 'text/plain':
-                        echo file_get_contents($file_manager->current_attachment->guid);
+                        echo file_get_contents($file_manager['generate_views']->current_attachment->guid);
                         break;
                     case 'audio/mpeg':
                         ?>
@@ -19,7 +19,7 @@
                             jQuery(document).ready(function() {
                                 jwplayer('audiospace').setup({
                                     'flashplayer': '<?php echo plugins_url('misc/player.swf', __FILE__); ?>',
-                                    'file': '<?php echo $file_manager->current_attachment->guid; ?>',
+                                    'file': '<?php echo $file_manager['generate_views']->current_attachment->guid; ?>',
                                     'autostart': 'true',
                                     'height': '24',
                                     'width': '470',
@@ -41,7 +41,7 @@
                             jQuery(document).ready(function() {
                                 jwplayer('videospace').setup({
                                     'flashplayer': '<?php echo plugins_url('misc/player.swf', __FILE__); ?>',
-                                    'file': '<?php echo $file_manager->current_attachment->guid; ?>',
+                                    'file': '<?php echo $file_manager['generate_views']->current_attachment->guid; ?>',
                                     'autostart': 'true',
                                     'controlbar': 'bottom',
                                     'frontcolor': '000000',
@@ -53,6 +53,9 @@
                             });
                         </script>
                         <?php
+                        break;
+                    case 'application/pdf':
+                        echo '<meta http-equiv="refresh" content="0;url=' . $file_manager['generate_views']->current_attachment->guid . '">';
                         break;
                     default:
                         echo 'There was a problem displaying your post.';

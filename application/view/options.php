@@ -41,7 +41,7 @@
                     ?>
                 </tr>
                 <?php
-                foreach ($file_manager->attachments as $key => $value) {
+                foreach ($file_manager['generate_views']->attachments as $key => $value) {
                     $temp = explode(',', $settings['files'][$value->ID]['categories']);
                     foreach ($temp as $temp_key => &$temp_value) {
                         $temp_value = $settings['categories'][$temp_value]['name'];
@@ -104,7 +104,7 @@
                     </tr>
                     <?php
 
-                    $file_manager->sort_array_by_element($settings['categories'], 'name');
+                    $file_manager['main']->sort_array_by_element($settings['categories'], 'name');
                     foreach ($settings['categories'] as $key => $value) {
                         $temp = explode(',', $value['sub_categories']);
                         foreach ($temp as $temp_key => &$temp_value) {
@@ -193,9 +193,9 @@
     ?>
     <div id="update_file" title="Edit File">
         <?php
-        if (array_key_exists($id, $file_manager->attachments) && $_GET['action'] === 'update_file') {
+        if (array_key_exists($id, $file_manager['generate_views']->attachments) && $_GET['action'] === 'update_file') {
             ?>
-            <h2 style="text-align: center"><?php esc_html_e($file_manager->attachments[$id]->post_title); ?></h2>
+            <h2 style="text-align: center"><?php esc_html_e($file_manager['generate_views']->attachments[$id]->post_title); ?></h2>
             <form id="edit_file" action="options.php#file_permissions" method="post">
                 <?php settings_fields('file_manager_settings'); ?>
                 <input name="file_manager_settings[file_id]" type="hidden" value="<?php echo (int) $id; ?>" />
