@@ -36,8 +36,8 @@ if ($title != 'VIP Content') {
             });
         }
         if ($display_categories[0] != '') {
-            $file_manager['main']->sort_array_by_element($display_categories, 'name');
-            foreach ($display_categories as $category_value) {
+            $display_categories = $file_manager['main']->sort_array_by_element($display_categories, 'name');
+            array_walk($display_categories, function($category_value, $category_key) use($file_manager, $settings) {
                 if ($file_manager['main']->check_permissions($current_user->ID, $category_value['belt_access'], $category_value['programs_access'])) {
                     $title = (preg_match('/->/', $category_value['name'])) ? substr($category_value['name'], strlen($settings['categories'][$file_manager['generate_views']->current_category]['name'])+2) : $category_value['name'];
                     ?>
@@ -46,7 +46,7 @@ if ($title != 'VIP Content') {
                     </tr>
                     <?php
                 }
-            }
+            });
         }
 
         $display_files = array();
@@ -55,7 +55,7 @@ if ($title != 'VIP Content') {
                 $display_files[] = $file_manager['generate_views']->attachments[$file_value['id']];
             }
         });
-        foreach ($display_files as $file_value) {
+        array_walk($display_files, function($file_value, $file_key) use($file_manager, $settings) {
             if ($file_manager['main']->check_permissions($current_user->ID, $settings['files'][$file_value->ID]['belt_access'], $settings['files'][$file_value->ID]['programs_access'])) {
                 ?>
                 <tr>
@@ -63,7 +63,7 @@ if ($title != 'VIP Content') {
                 <tr>
                 <?php
             }
-        }
+        });
         ?>
     </tbody>
 </table>

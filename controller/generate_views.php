@@ -6,7 +6,7 @@ class generate_views extends file_manager {
         add_action('admin_menu', array(&$this, 'add_admin_menu'));
 
         $temp = get_option('ma_accounts_settings');
-        $this->attachments = get_children('post_parent=' . get_page_by_title($temp['login_page'])->ID . '&post_type=attachment&order=ASC');
+        $this->attachments = get_children('post_parent=' . get_page_by_title($temp['login_page'])->ID . '&post_type=attachment&orderby=title&order=ASC');
     } //End __construct
 
     public function add_admin_menu() {
@@ -46,7 +46,7 @@ class generate_views extends file_manager {
         } else {
             $file_manager['generate_views']->current_category = get_query_var('fm_category');
             ob_start();
-            include parent::__basepath__ . '/application/view/main.php';
+            include parent::__basepath__ . '/application/view/category.php';
             return ob_get_clean();
         }
     } //End file_func

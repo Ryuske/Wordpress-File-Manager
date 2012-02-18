@@ -14,6 +14,7 @@ class update_settings extends file_manager {
 
     public function validate_settings($input) {
         $temp = '';
+        $parent_options = &parent::$options;
         $valid_options = array(
             'permissions' => array(
                 'use' => trim($input['permissions']['use']),
@@ -24,21 +25,21 @@ class update_settings extends file_manager {
         );
         $permissions_settings = get_option(parent::$options['permissions']['options_name']);
 
-        foreach($valid_options as $key => &$value) {
-            $value = (!array_key_exists($key, $input)) ? parent::$options[$key] : $value;
-        }
+        array_walk($valid_options, function($vo_value, $vo_key) use(&$valid_options, $input, $parent_options) {
+            $valid_options[$vo_key] = (!array_key_exists($vo_key, $input)) ? $parent_options[$vo_key] : $vo_value;
+        });
 
-        foreach ($valid_options as $key => &$value) {
-            switch ($key) {
+        array_walk($valid_options, function($vo_value, $vo_key) use(&$valid_options, $parent_options, $input, $temp, $permissions_settings) {
+            switch ($vo_key) {
             case 'permissions':
-                if (!empty($value['use'])) {
-                    $value['use'] = True;
+                if (!empty($vo_value['use'])) {
+                    $valid_options[$vo_key]['use'] = True;
                 } else {
-                    $value['use'] = False;
+                    $valid_option[$vo_key]['use'] = False;
                 }
 
                 if (!get_option($value['options_name'])) {
-                    $value['options_name'] = parent::$options['permissions']['options_name'];
+                    $valid_options[$vo_key]['options_name'] = $parent_options['permissions']['options_name'];
                 }
                 break;
             case 'files':
@@ -46,25 +47,25 @@ class update_settings extends file_manager {
                     $temp = array('', '', '');
 
                     if (array_key_exists('file_categories', $input)) {
-                        foreach ($input['file_categories'] as $category_value) {
-                            if (array_key_exists($category_value, parent::$options['categories'])) {
+                        array_walk($input['file_categories'], function($category_value, $category_key) use($parent_options, &$temp) {
+                            if (array_key_exists($category_value, $parent_options['categories'])) {
                                 $temp[0] .= $category_value . ',';
                             }
-                        }
+                        });
                         $temp[0] = substr($temp[0], 0, -1);
                     }
 
-                    if (parent::$options['permissions']['use']) {
+                    if ($parent_options['permissions']['use']) {
                         if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
                             $temp[1] = $input['belt'];
                         }
 
                         if (array_key_exists('programs', $input)) {
-                            foreach ($input['programs'] as $program_value) {
+                            array_walk($input['programs'], function($program_value, $program_key) use($permissions_settings, &$temp) {
                                 if (array_key_exists($program_value, $permissions_settings['programs'])) {
                                     $temp[2] .=  $program_value . ',';
                                 }
-                            }
+                            });
                             $temp[2] = substr($temp[2], 0, -1);
                         }
                     }
@@ -76,17 +77,17 @@ class update_settings extends file_manager {
                 //CodeBlock deleting categories
                 if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories']) && !array_key_exists('name', $input)) {
                     unset($valid_options['categories'][$input['category_id']]);
-                    foreach ($valid_options['categories'] as $key => &$value) {
-                        $temp = (!empty($value['sub_categories'])) ? explode(',', $value['sub_categories']) : '';
+                    array_walk($valid_options['categories'], function($category_value, $category_key) use($temp, &$vo_value, $input) {
+                        $temp = (!empty($vo_value['sub_categories'])) ? explode(',', $vo_value['sub_categories']) : '';
                         if (!empty($temp)) {
-                            foreach ($temp as $temp_key => $temp_value) {
+                            array_walk($temp, function($temp_value, $temp_key) use($input, &$temp) {
                                 if ($temp_value === $input['category_id']) {
                                     unset($temp[$temp_key]);
                                 }
-                            }
-                            $value['sub_categories'] = implode(',', $temp);
+                            });
+                            $vo_value['sub_categories'] = implode(',', $temp);
                         }
-                    }
+                    });
                 }
                 //End deleting categories
 
@@ -108,23 +109,25 @@ class update_settings extends file_manager {
                     }
 
                     if (array_key_exists('sub_categories', $input)) {
-                        foreach ($input['sub_categories'] as $cat_key => $cat_value) {
-                            $temp[1] .= $cat_key . ',';
-                        }
+                        array_walk($input['sub_categories'], function($category_value, $category_key) use(&$temp) {
+                            $temp[1] .= $category_key . ',';
+                        });
                         $temp[1] = substr($temp[1], 0, -1);
                     }
 
-                    if (parent::$options['permissions']['use']) {
+                    if ($parent_options['permissions']['use']) {
                         if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
                             $temp[2] = $input['belt'];
                         }
 
                         if (array_key_exists('programs', $input)) {
-                            foreach ($input['programs'] as $program_key) {
+                            print_r($permissions_settings);
+                            array_walk($input['programs'], function($program_value, $program_key) use($permissions_settings, &$temp) {
+                                print_r($permissions_settings);
                                 if (array_key_exists($program_key, $permissions_settings['programs'])) {
                                     $temp[3] .=  $program_key . ',';
                                 }
-                            }
+                            });
                             $temp[3] = substr($temp[3], 0, -1);
                         }
                     }
@@ -136,7 +139,7 @@ class update_settings extends file_manager {
             default:
                 break;
             }
-        }
+        });
 
         return $valid_options;
     } //End validate_settings

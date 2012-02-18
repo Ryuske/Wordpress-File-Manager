@@ -64,29 +64,28 @@ class file_manager {
      * Param: array $array
      * Param: string $element
      * Param: int $sort_flags
-     * Return: None
+     * Return: array $new_array
      */
-    public function sort_array_by_element(&$array, $element, $sort_flags=SORT_REGULAR) {
-        $temp_array = $array;
+    public function sort_array_by_element($array, $element, $sort_flags=SORT_REGULAR) {
+        $temp_array = '';
         $new_array = array();
 
-        foreach ($temp_array as $key => $value) {
-            unset($temp_array[$key]);
-            $temp_array[] = $value[$element];
-        }
+        array_walk($array, function($array_value, $array_key) use(&$temp_array, $element) {
+            $temp_array[] = $array_value[$element];
+        });
 
         sort($temp_array, $sort_flags);
 
-        foreach ($temp_array as $array_element) {
-            foreach ($array as $key => &$value) {
-                if ($array_element === $value[$element]) {
-                    $new_array[$key] = $value;
-                    break;
+        array_walk($temp_array, function($temp_value, $temp_key) use($array, $element, &$new_array) {
+            array_walk($array, function($array_value, $array_key) use($temp_value, $element, &$new_array) {
+                if ($temp_value === $array_value[$element]) {
+                    $new_array[$array_key] = $array_value;
+                    //break;
                 }
-            }
-        }
+            });
+        });
 
-        $array = $new_array;
+        return $new_array;
     } //End sort_array_by_element
 
     /*
