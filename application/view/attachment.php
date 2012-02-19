@@ -54,6 +54,9 @@
                         </script>
                         <?php
                         break;
+                    case 'application/pdf':
+                        echo '<meta http-equiv="refresh" content="0;url=' . $file_manager->current_attachment->guid . '">';
+                        break;
                     default:
                         echo 'There was a problem displaying your post.';
                 }
