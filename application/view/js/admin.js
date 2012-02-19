@@ -14,6 +14,41 @@ jQuery(document).ready(function(){
 });
 
 /*
+ * Add accordian to Categories page in backend
+ */
+jQuery(function() {
+    var stop = false;
+    jQuery('.accordion h3').click(function(event) {
+        if (stop) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            stop = false;
+        }
+    });
+    jQuery('.accordion')
+    .accordion({
+        header: "> div > h3",
+        autoHeight: false,
+        collapsible: true,
+        active: false
+    })
+    .sortable({
+        axis: "y",
+        handle: "h3",
+        stop: function() {
+            stop = true;
+        }
+    });
+});
+
+jQuery('.accordion h3 .delete').click(function() {
+    window.open(jQuery(this).attr('href'));
+});
+jQuery('.accordion h3 .update').click(function() {
+    window.open(jQuery(this).attr('href'));
+});
+
+/*
  * Add sortable content, used on Belts & Programs to make belts sortable.
  */
 jQuery('#sortable').sortable({

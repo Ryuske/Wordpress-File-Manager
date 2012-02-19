@@ -18,6 +18,7 @@ class generate_views extends file_manager {
         if (current_user_can('administrator')) {
             wp_enqueue_style('black-tie');
             wp_enqueue_style('fileManagerStyle');
+            wp_enqueue_script('jquery-ui-accordion');
             wp_enqueue_script('fileManagerScript');
 
             $settings = get_option('file_manager_settings');

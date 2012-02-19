@@ -81,63 +81,157 @@
 
     <!--Categories page-->
     <div id="categories" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
-        <h1 style="display: inline">Categories</h1> <h3 style="display: inline; position: relative; bottom: 1px;"><a href="#categories" onclick="jQuery('#add_category').dialog('open')"><span class="ui-icon ui-icon-plusthick" style="display: inline-block; vertical-align: text-top;"></span>Add</a></h3>
+        <h1 style="display: inline">Categories</h1> <h3 style="display: inline; position: relative; bottom: 1px;"><a href="#categories" onclick="jQuery('#add_category').dialog('open')"><span class="ui-icon ui-icon-plusthick" style="display: inline-block; vertical-align: text-top;"></span>Add</a></h3><br /><br />
         <?php
         if (count($settings['categories']) <= 0) {
             echo '<div>You haven\'t added any categories yet! <a href="#categories" onclick="jQuery(\'#add_category\').dialog(\'open\')">Add</a> one now.</div>';
         } else {
             ?>
-            <table class="file_manager_table" style="width: 1000px;">
-                <tbody>
-                    <tr>
-                        <th style="width: 15px;"></th>
-                        <th style="width: 150px;">Category</th>
-                        <th style="width: 100px;">Sub-Categories</th>
+                <script type="text/javascript">
+                    jQuery(document).ready(function() {
+                        jQuery('.accordion').each(function() {
+                            if(jQuery.trim(jQuery(this).children().children().eq(1).children().eq(1).text()) == "") {
+                                jQuery(this).children().children().eq(1).children().css("display", "block");
+                            }
+                        });
+                    });
+                </script>
+            <div class="accordion">
+                <?php
+                $settings['categories'] = $file_manager['main']->sort_array_by_element($settings['categories'], 'name');
+                array_walk($settings['categories'], function($category_value, $category_key) use($settings, $permissions_settings) {
+                    if (!preg_match('/->/', $category_value['name'])) {
+                        $programs_access = '';
+                        $belt_access = '';
+
+                        if ($settings['permissions']['use']) {
+                            $belt_access = (!empty($permissions_settings['belts'][$category_value['belt_access']]['name'])) ? $permissions_settings['belts'][$category_value['belt_access']]['name']  : 'N/A';
+
+                            $programs_access = explode(',', $category_value['programs_access']);
+                            array_walk($programs_access, function($program_value, $program_key) use(&$programs_access, $permissions_settings) {
+                                $programs_access[$program_key] = $permissions_settings['programs'][$program_value]['name'];
+                            });
+                            $programs_access = (!empty($programs_access[0])) ? implode(', ', $programs_access) : 'N/A';
+                        }
+
+                        ?>
+                        <div>
+                            <h3>
+                            <a class="update" style="position: absolute; top: 7px; left: 19px;" href="plugins.php?page=file_manager&amp;id=<?php echo (int) $category_value['id']; ?>&amp;action=update_category#categories"><span class="ui-icon ui-icon-pencil"></span></a>
+                            <a class="delete" style="position: absolute; top: 7px; left: 34px;" href="plugins.php?page=file_manager&amp;id=<?php echo (int) $category_value['id']; ?>&amp;action=delete_category#categories"><span class="ui-icon ui-icon-trash"></span></a>
+                                <a class="accordion-href" href="#">
+                                    <span style="padding-left: 35px;"><?php echo esc_html($category_value['name']); ?> </span>
+                                    <?php echo ($settings['permissions']['use']) ? '<br /> Belt Access: ' . esc_html($belt_access)  . ' &bull; Programs Access: ' . esc_html($programs_access) : ''; ?>
+                                </a>
+                            </h3>
+                            <div>
+                            <div style="display: none">You haven't set any sub-categories! <a href="plugins.php?page=file_manager&amp;id=<?php echo (int) $category_value['id']; ?>&amp;action=add_subcategory">Add</a> one now.</div>
+                                <?php
+                                $sub_category_array = array();
+                                $temp_category_info = array('base' => $category_value['name'], 'current' => '', 'display_name' => '', 'next' => '');
+                                $current_level = 0;
+                                $start_level = True;
+                                $iterations = 0;
+
+                                array_walk($settings['categories'], function($temp_category_value, $temp_category_key) use(&$sub_category_array, $category_value) {
+                                    if (preg_match_all('/' . $category_value['name'] . '->/', $temp_category_value['name'], $matches)) {
+                                        $sub_category_array[] = $temp_category_value;
+                                    }
+                                });
+
+
+
+                                array_walk($sub_category_array, function($sub_category_value, $sub_category_key) use($sub_category_array, $temp_category_info, &$start_level, &$current_level, &$iterations, $settings, $permissions_settings) {
+                                    $programs_access = '';
+                                    $belt_access = '';
+
+                                    if ($settings['permissions']['use']) {
+                                        $belt_access = (!empty($permissions_settings['belts'][$sub_category_value['belt_access']]['name'])) ? $permissions_settings['belts'][$sub_category_value['belt_access']]['name']  : 'N/A';
+
+                                        $programs_access = explode(',', $sub_category_value['programs_access']);
+                                        array_walk($programs_access, function($program_value, $program_key) use(&$programs_access, $permissions_settings) {
+                                            $programs_access[$program_key] = $permissions_settings['programs'][$program_value]['name'];
+                                        });
+                                        $programs_access = (!empty($programs_access[0])) ? implode(', ', $programs_access) : 'N/A';
+                                    }
+
+                                    $temp_category_info['current'] = $sub_category_value['name'];
+                                    $display_name = array_reverse(explode('->', $temp_category_info['current']));
+                                    $display_name = esc_html($display_name[0]);
+                                    $display_name = '
+                                    <a class="update" style="position: absolute; top: 7px; left: 19px;" href="plugins.php?page=file_manager&amp;id=' . (int) $sub_category_value['id'] . '&amp;action=update_category#categories"><span class="ui-icon ui-icon-pencil"></span></a>
+                                    <a class="delete" style="position: absolute; top: 7px; left: 34px;" href="plugins.php?page=file_manager&amp;id=' . (int) $sub_category_value['id'] . '&amp;action=delete_category#categories"><span class="ui-icon ui-icon-trash"></span></a>
+                                <a class="accordion-href" href="#">
+                                    <span style="padding-left: 35px;">' . esc_html($display_name) . ' </span>';
+                                    $display_name .= ($settings['permissions']['use']) ? '<br /> Belt Access: ' . esc_html($belt_access)  . ' &bull; Programs Access: ' . esc_html($programs_access) . '</a>' : '</a>';
+                                    $display_empty_category_text = 'You haven\'t set any sub-categories! <a href="plugins.php?page=file_manager&amp;id=' . (int) $sub_category_value['id'] . '&amp;action=add_subcategory">Add</a> one now.';
+                                    $temp_next_array = explode('->', $temp_category_info['current']);
+                                    array_pop($temp_next_array);
+                                    $temp_category_info['next'] = (!empty($sub_category_array[$sub_category_key+1]['name'])) ? $sub_category_array[$sub_category_key+1]['name'] : implode('->', $temp_next_array);
+                                    $iterations++;
+
+                                    //Yes it is intetionally that there is two of these!
+                                    if (True === $start_level) {
+                                        $start_level = False;
+                                        ?>
+                                        <div class="accordion">
+                                        <?php
+                                    }
+
+                                    if (!preg_match('/' . $temp_category_info['current'] . '/', $temp_category_info['next']) && (preg_match('/' . $temp_category_info['base'] . '/', $temp_category_info['next']) && $iterations < count($sub_category_array))) { //Stay at recursion level
+                                        ?>
+                                        <div>
+                                            <h3><?php echo $display_name; ?></h3>
+                                            <div><div style="display: none"><?php echo $display_empty_category_text; ?></div></div>
+                                        </div>
+                                        <?php
+                                    } else if (preg_match('/' . $temp_category_info['current'] . '/', $temp_category_info['next'])) { //Go down a recursion level
+                                        $start_level = True;
+                                        $current_level++;
+                                        $temp_category_info['base'] = $temp_category_info['current'];
+                                        ?>
+                                        <div>
+                                            <h3><?php echo $display_name; ?></h3>
+                                            <div><div style="display: none"><?php echo $display_empty_category_text; ?></div>
+                                        <?php
+                                    } else { //Go up a recursion level
+                                        $current_level--;
+                                        ?>
+                                        </div></div></div>
+                                        <div>
+                                        <h3><?php echo $display_name; ?></h3>
+                                        <div><div><?php echo $display_empty_category_text; ?></div>
+                                        <?php
+                                    }
+
+                                    if (True === $start_level) {
+                                        $start_level = False;
+                                        ?>
+                                        <div class="accordion">
+                                        <?php
+                                    }
+                                });
+
+                                if ($current_level > 0) {
+                                    for ($i=0; $i<=$current_level; $i++) {
+                                        echo '</div></div></div>';
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
                         <?php
                         if ($settings['permissions']['use']) {
-                            ?>
-                            <th style="width: 50px;">Belt Access</th>
-                            <th style="width: 90px;">Programs Access</th>
-                            <?php
+                            $temp = explode(',', $category_value['programs_access']);
+                            array_walk($temp, function($temp_value, $temp_key) use(&$temp, $permissions_settings) {
+                                $temp[$temp_key] = $permissions_settings['programs'][$temp_value]['name'];
+                            });
+                            $temp = implode(', ', $temp);
                         }
-                        ?>
-                    </tr>
-                    <?php
-
-                    $settings['categories'] = $file_manager['main']->sort_array_by_element($settings['categories'], 'name');
-                    array_walk($settings['categories'], function($category_value, $category_key) use($settings, $permissions_settings) {
-                        $temp = explode(',', $category_value['sub_categories']);
-                        array_walk($temp, function($temp_value, $temp_key) use(&$temp, $settings, $category_value) {
-                            $temp[$temp_key] = substr($settings['categories'][$temp_value]['name'], strlen($category_value['name'])+2);
-                        });
-                        $temp = implode(', ', $temp);
-                        ?>
-                        <tr>
-                            <td class="buttons">
-                                <a href="plugins.php?page=file_manager&amp;id=<?php echo (int) $category_value['id']; ?>&amp;action=update_category#categories"><span class="ui-icon ui-icon-pencil" style="float: left"></span></a>
-                                <a href="plugins.php?page=file_manager&amp;id=<?php echo (int) $category_value['id']; ?>&amp;action=delete_category#categories"><span class="ui-icon ui-icon-trash"></span></a>
-                            </td>
-                            <td><?php esc_html_e($category_value['name']); ?></td>
-                            <td><?php esc_html_e($temp); ?></td>
-                            <?php
-                            if ($settings['permissions']['use']) {
-                                $temp = explode(',', $category_value['programs_access']);
-                                array_walk($temp, function($temp_value, $temp_key) use(&$temp, $permissions_settings) {
-                                    $temp[$temp_key] = $permissions_settings['programs'][$temp_value]['name'];
-                                });
-                                $temp = implode(', ', $temp);
-                                ?>
-                                <td><?php esc_html_e($permissions_settings['belts'][$category_value['belt_access']]['name']); ?></td>
-                                <td><?php esc_html_e($temp); ?></td>
-                                <?php
-                            }
-                            ?>
-                        </tr>
-                        <?php
-                    });
-                    ?>
-                </tbody>
-            </table>
+                    }
+                });
+                ?>
+            </div>
             <?php
         }
         ?>
