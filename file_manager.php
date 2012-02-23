@@ -26,13 +26,11 @@ class file_manager {
         'categories' => array(/*****EXAMPLE*****
         'id' => 0,
         'name' => 'My Cat',
-        'sub_categories' => array('Something', 'Koala'),
         'belt_access' => 0, //Id of a white belt
         'programs_access' => 0 //If of Swat program
         ***Another entry into the array***
         'id' => 1
         'name' => 'My Cat->Something',
-        'sub_categories' => array('Hazah'),
         'belt_access' => '', //Not specificed, i.e. public
         'programs_access' => '' //Not specified, i.e. public
          */)
@@ -128,6 +126,18 @@ class file_manager {
 
         return False;
     } //End check_permissions
+
+    public function get_subcategories($category) {
+        $categories = get_option('file_manager_settings');
+        $categories = $categories['categories'];
+        $return = array();
+        array_walk($categories, function($category_value, $category_key) use ($category, &$return) {
+            if (preg_match('/' . $category . '/', $category_value['name']) && $category_value['name'] !== $category) {
+                $return[] = $category_value['id'];
+            }
+        });
+        return $return;
+    } //End get_subcategories
 
     /*
      * Used for "pretty" urls

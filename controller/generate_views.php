@@ -25,7 +25,7 @@ class generate_views extends file_manager {
             if ($settings['permissions']['use']) {
                 $permissions_settings = get_option($settings['permissions']['options_name']);
             }
-            include parent::__basepath__ . '/application/view/options.php';
+            include parent::__basepath__ . '/application/view/options/main.php';
         }
     } //End render_backend
 

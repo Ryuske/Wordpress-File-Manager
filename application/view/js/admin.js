@@ -42,10 +42,10 @@ jQuery(function() {
 });
 
 jQuery('.accordion h3 .delete').click(function() {
-    window.open(jQuery(this).attr('href'));
+    window.location = jQuery(this).attr('href');
 });
 jQuery('.accordion h3 .update').click(function() {
-    window.open(jQuery(this).attr('href'));
+    window.location = jQuery(this).attr('href');
 });
 
 /*
@@ -119,9 +119,31 @@ jQuery('#add_category').dialog({
     }
 }); //End #add_category
 
+jQuery('#add_subcategory').dialog({
+    autoOpen: false,
+    width: 350,
+    modal: true,
+    resizable: false,
+    buttons: {
+        Add: function() {
+            if (jQuery('#add_subcategory_form #category').val() !== '') {
+                jQuery('#add_subcategory_form').submit();
+            } else {
+                jQuery('#add_subcategory_notification').css('display', 'block');
+            }
+        },
+        Cancel: function() {
+            jQuery('#add_subcategory_notification').css('display', 'none');
+            window.location = 'plugins.php?page=file_manager#categories';
+        }
+    }
+}); //End #add_subcategory
+
+
 jQuery('#update_category').dialog({
     autoOpen: false,
     width: 350,
+    height: 'auto',
     modal: true,
     resizable: false,
     buttons: {

@@ -96,43 +96,42 @@ class update_settings extends file_manager {
                     $temp = array('', '', '', '');
 
                     //Wether or not we're updating or adding.
-                    if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories'])) { //Upating
-                        $temp[0] = $input['category_id'];
-                    } else { //Adding
-                        end($valid_options['categories']);
-                        $temp[0] = key($valid_options['categories']);
-                        if (isset($temp[0])) {
-                            $temp[0]++;
-                        } else {
-                            $temp[0] = 0;
-                        }
+                    switch ($input['category_action']) {
+                        case 'subcategory':
+                            $temp[0] = (array_key_exists($input['category_id'], $valid_options['categories'])) ? $input['category_id'] : '';
+                            $input['name'] = $valid_options['categories'][$input['category_id']]['name'] . '->' . $input['name'];
+                            break;
+                        case 'update':
+                            $temp[0] = (array_key_exists($input['category_id'], $valid_options['categories'])) ? $input['category_id'] : '';
+                            $input['name'] = $valid_options[$input['category_id']]['name'];
+                            break;
+                        default: //Add
+                            end($valid_options['categories']);
+                            $temp[0] = key($valid_options['categories']);
+                            $temp[0] = (isset($temp[0])) ? $temp[0]+1 : $temp[0] = 0;
+                            break;
                     }
 
-                    if (array_key_exists('sub_categories', $input)) {
-                        array_walk($input['sub_categories'], function($category_value, $category_key) use(&$temp) {
-                            $temp[1] .= $category_key . ',';
-                        });
-                        $temp[1] = substr($temp[1], 0, -1);
-                    }
+                    if ('' !== $temp[0]) {
+                        if ($parent_options['permissions']['use']) {
+                            if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
+                                $temp[2] = $input['belt'];
+                            }
 
-                    if ($parent_options['permissions']['use']) {
-                        if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
-                            $temp[2] = $input['belt'];
-                        }
-
-                        if (array_key_exists('programs', $input)) {
-                            print_r($permissions_settings);
-                            array_walk($input['programs'], function($program_value, $program_key) use($permissions_settings, &$temp) {
+                            if (array_key_exists('programs', $input)) {
                                 print_r($permissions_settings);
-                                if (array_key_exists($program_key, $permissions_settings['programs'])) {
-                                    $temp[3] .=  $program_key . ',';
-                                }
-                            });
-                            $temp[3] = substr($temp[3], 0, -1);
+                                array_walk($input['programs'], function($program_value, $program_key) use($permissions_settings, &$temp) {
+                                    print_r($permissions_settings);
+                                    if (array_key_exists($program_key, $permissions_settings['programs'])) {
+                                        $temp[3] .=  $program_key . ',';
+                                    }
+                                });
+                                $temp[3] = substr($temp[3], 0, -1);
+                            }
                         }
-                    }
 
-                    $valid_options['categories'][$temp[0]] = array('id' => $temp[0], 'name' => trim($input['name']), 'sub_categories' => $temp[1], 'belt_access' => $temp[2], 'programs_access' => $temp[3]);
+                        $valid_options['categories'][$temp[0]] = array('id' => $temp[0], 'name' => trim($input['name']), 'belt_access' => $temp[2], 'programs_access' => $temp[3]);
+                    }
                 }
                 //End adding/updating categories
                 break;
