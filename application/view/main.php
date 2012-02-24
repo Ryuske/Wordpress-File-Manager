@@ -59,7 +59,13 @@ if ($title != 'VIP Content') {
             if ($file_manager->check_permissions($current_user->ID, $settings['files'][$file_value->ID]['belt_access'], $settings['files'][$file_value->ID]['programs_access'])) {
                 ?>
                 <tr>
-                    <td class="file"><a href="?fm_attachment=<?php echo (int) $file_value->ID ?>"><?php esc_html_e($file_value->post_title); ?></a></td>
+                    <?php
+                    if ($file_value->post_mime_type == 'application/pdf') {
+                        echo '<td class="file"><a href="?fm_attachment=' . (int) $file_value->ID . '" target="_blank">' . esc_html($file_value->post_title) . '</a></td>';
+                    } else {
+                        echo '<td class="file"><a href="?fm_attachment=' . (int) $file_value->ID . '">' . esc_html($file_value->post_title) . '</a></td>';
+                    }
+                    ?>
                 <tr>
                 <?php
             }
