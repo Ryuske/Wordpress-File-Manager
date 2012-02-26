@@ -1,8 +1,9 @@
 Wordpress Plugin; File Manager.
 To be used with PHP versions >=5.3
 
+View CHANGELOG for detailed updates to commit
+
 TODO (ordered):
-Make it so when you delete a category, all sub-categories get deleted
 Make sorting categories functional
 Update [file] (file browser) to use new sub-categories system ($file_manager['main']->get_subcategories instead of $settings['categories'][$id]['subcategories'])
 Allow options to change sorting order for files & categorys. (Either custom, or alphabetically)
@@ -15,3 +16,5 @@ Add timestamp to belt order, and in the event that it's changed update permissio
 Figure out how to style File Permissions dialog in regards to categories (or more specifically sub-categories)
 Localize file uploading, auto attach, and add ability to unatach (if possible)
 When changing attachment page, update all current attachments to new page
+Figure out how to style File Permissions part of file manager
+Figure out how to style attach to category thing in edit file

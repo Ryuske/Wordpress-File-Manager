@@ -41,12 +41,17 @@ jQuery(function() {
     });
 });
 
+//Begin block for links within an accordion
 jQuery('.accordion h3 .delete').click(function() {
     window.location = jQuery(this).attr('href');
 });
 jQuery('.accordion h3 .update').click(function() {
     window.location = jQuery(this).attr('href');
 });
+jQuery('.accordion h3 .add').click(function() {
+    window.location = jQuery(this).attr('href');
+});
+//End block
 
 /*
  * Add sortable content, used on Belts & Programs to make belts sortable.

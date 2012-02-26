@@ -76,18 +76,13 @@ class update_settings extends file_manager {
             case 'categories':
                 //CodeBlock deleting categories
                 if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories']) && !array_key_exists('name', $input)) {
-                    unset($valid_options['categories'][$input['category_id']]);
-                    array_walk($valid_options['categories'], function($category_value, $category_key) use($temp, &$vo_value, $input) {
-                        $temp = (!empty($vo_value['sub_categories'])) ? explode(',', $vo_value['sub_categories']) : '';
-                        if (!empty($temp)) {
-                            array_walk($temp, function($temp_value, $temp_key) use($input, &$temp) {
-                                if ($temp_value === $input['category_id']) {
-                                    unset($temp[$temp_key]);
-                                }
-                            });
-                            $vo_value['sub_categories'] = implode(',', $temp);
+                    $temp = $valid_options['categories'][$input['category_id']];
+                    array_walk($valid_options['categories'], function($category_value, $category_key) use($temp, &$valid_options) {
+                        if (preg_match('/' . $temp['name'] . '->/', $category_value['name'])) {
+                            unset($valid_options['categories'][$category_value['id']]);
                         }
                     });
+                    unset($valid_options['categories'][$temp['id']]);
                 }
                 //End deleting categories
 
@@ -97,8 +92,11 @@ class update_settings extends file_manager {
 
                     //Wether or not we're updating or adding.
                     switch ($input['category_action']) {
-                        case 'subcategory':
-                            $temp[0] = (array_key_exists($input['category_id'], $valid_options['categories'])) ? $input['category_id'] : '';
+                        case 'subcategory': //Adding a subcategory
+                            end($valid_options['categories']);
+                            $temp[0] = key($valid_options['categories']);
+                            reset($valid_options['categories']);
+                            $temp[0]++;
                             $input['name'] = $valid_options['categories'][$input['category_id']]['name'] . '->' . $input['name'];
                             break;
                         case 'update':
@@ -108,6 +106,7 @@ class update_settings extends file_manager {
                         default: //Add
                             end($valid_options['categories']);
                             $temp[0] = key($valid_options['categories']);
+                            reset($valid_options['categories']);
                             $temp[0] = (isset($temp[0])) ? $temp[0]+1 : $temp[0] = 0;
                             break;
                     }
@@ -119,9 +118,7 @@ class update_settings extends file_manager {
                             }
 
                             if (array_key_exists('programs', $input)) {
-                                print_r($permissions_settings);
                                 array_walk($input['programs'], function($program_value, $program_key) use($permissions_settings, &$temp) {
-                                    print_r($permissions_settings);
                                     if (array_key_exists($program_key, $permissions_settings['programs'])) {
                                         $temp[3] .=  $program_key . ',';
                                     }

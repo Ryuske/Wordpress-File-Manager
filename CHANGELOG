@@ -1,0 +1,6 @@
+2/24/2012 - Commit 1
+    PDFs will now open in a new tab/window
+
+1/25/2012 - Commit 1
+    Fixed recursion in sub-categories (hopefully now works in infinite recursion)
+    Updated README
