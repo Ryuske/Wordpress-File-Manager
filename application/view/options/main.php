@@ -6,7 +6,7 @@
                 File Permissions
             </a>
         </li>
-        <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active">
+        <li class="ui-state-default ui-corner-top">
             <a href="#categories">
                 <span class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-folder-collapsed" style="float: left; margin-right: .3em;"></span></span>
                 Categories

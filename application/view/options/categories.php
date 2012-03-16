@@ -14,8 +14,11 @@
 		    });
 		});
         </script>
-    <!--Start Copy & Paste-->
-    <div class="accordion">
+    <form id="update_category_order" action="post.php#categories" method="post">
+        <?php settings_fields('file_manager_settings'); ?>
+        <input id="new_order" name="file_manager_settings[new_order]" type="hidden" />
+    </form>
+    <div id="#accordion_content" class="accordion">
         <?php
         //Beginning accordion
 	    $settings['categories'] = $file_manager['main']->sort_array_by_element($settings['categories'], 'name');
@@ -213,4 +216,3 @@
     }
     ?>
 </div>
-<!--End Copy & Paste-->

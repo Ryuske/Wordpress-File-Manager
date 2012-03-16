@@ -1,12 +1,54 @@
 <?php
 class update_settings extends file_manager {
     function __construct() {
-        register_activation_hook(__FILE__, array($this, 'activate_plugin'));
         add_action('admin_init', array($this, 'admin_settings'));
     } //End __construct
 
     public function admin_settings() {
-        parent::$options = (!get_option('file_manager_settings')) ? parent::options : get_option('file_manager_settings');
+        $permissions_settings = get_option(parent::$options['permissions']['options_name']);
+        parent::$options = (!get_option('file_manager_settings')) ? parent::$options : get_option('file_manager_settings');
+        $options_alias = &parent::$options;
+
+        if (parent::$options['permissions']['use']) {
+            //Make sure belts & programs exist in files
+            array_walk($options_alias['files'], function($file_value, $file_key) use($permissions_settings, &$options_alias) {
+                $temp_programs_access = explode(',', $file_value['programs_access']);
+
+                if (!is_array($permissions_settings['belts']) || !array_key_exists($file_value['belt_access'], $permissions_settings['belts'])) {
+                    $options_alias['files'][$file_key]['belt_access'] = '';
+                }
+
+                array_walk($temp_programs_access, function($program_value, $program_key) use($permissions_settings, &$temp_programs_access) {
+                    if (!array_key_exists($program_value, $permissions_settings['programs'])) {
+                        unset($temp_programs_access);
+                    }
+                });
+
+                $temp_programs_access = implode(',', $temp_programs_access);
+                $options_alias['files'][$file_key]['programs_access'] = $temp_programs_access;
+            }); //End array_walk
+            //End CodeBlock
+
+            //Make sure belts & programs exist in categories
+            array_walk($options_alias['categories'], function($category_value, $category_key) use($permissions_settings, &$options_alias) {
+                $temp_programs_access = explode(',', $category_value['programs_access']);
+
+                if (!is_array($permissions_settings['belts']) || !array_key_exists($category_value['belt_access'], $permissions_settings['belts'])) {
+                    $options_alias['categories'][$category_key]['belt_access'] = '';
+                }
+
+                array_walk($temp_programs_access, function($program_value, $program_key) use($permissions_settings, &$temp_programs_access) {
+                    if (!array_key_exists($program_value, $permissions_settings['programs'])) {
+                        unset($temp_programs_access);
+                    }
+                });
+
+                $temp_programs_access = implode(',', $temp_programs_access);
+                $options_alias['categories'][$category_key]['programs_access'] = $temp_programs_access;
+            }); //End array_walk
+            //End CodeBlock
+        }
+
         if (current_user_can('administrator')) {
             register_setting('file_manager_settings', 'file_manager_settings', array(&$this, 'validate_settings'));
         }

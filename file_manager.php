@@ -51,6 +51,8 @@ class file_manager {
         wp_register_style('fileManagerStyle', plugins_url('application/view/css/file_manager.css', __FILE__));
         wp_register_script('fileManagerScript', plugins_url('application/view/js/admin.js', __FILE__));
         wp_register_script('fileManagerJwplayer', plugins_url('application/view/js/jwplayer.js', __FILE__));
+
+        register_activation_hook(__FILE__, array(&$this, 'activate_plugin'));
     } //End __construct
 
     public function activate_plugin() {

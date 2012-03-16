@@ -21,7 +21,7 @@ class generate_views extends file_manager {
             wp_enqueue_script('jquery-ui-accordion');
             wp_enqueue_script('fileManagerScript');
 
-            $settings = get_option('file_manager_settings');
+            $settings = parent::$options;
             if ($settings['permissions']['use']) {
                 $permissions_settings = get_option($settings['permissions']['options_name']);
             }
@@ -31,7 +31,7 @@ class generate_views extends file_manager {
 
     public function file_func() {
         global $file_manager, $current_user;
-        $settings = get_option('file_manager_settings');
+        $settings = parent::$options;
         wp_enqueue_style('fileManagerStyle');
 
         if (!empty($file_manager['generate_views']->attachments[get_query_var('fm_attachment')]) || $file_manager['generate_views']->attachments[get_query_var('fm_attachment')] === 0) {

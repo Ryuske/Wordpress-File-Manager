@@ -4,3 +4,9 @@
 1/25/2012 - Commit 1
     Fixed recursion in sub-categories (hopefully now works in infinite recursion)
     Updated README
+
+3/16/2012 - Commit 1
+    Update variable names to proper plugin name in application/view/js/admin.js
+    Worked on accordion (making it sortable)
+    Updated options to work from parent::$options instead of get_options
+    Fixed issue where if a file/category had a belt or program set that got deleted and nothing filled it's place the page would break

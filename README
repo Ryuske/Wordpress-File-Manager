@@ -3,12 +3,18 @@ To be used with PHP versions >=5.3
 
 View CHANGELOG for detailed updates to commit
 
+Known Bugs:
+Editing a category unsets its name, and you can't reset it
+
 TODO (ordered):
 Make sorting categories functional
+    Figure out how to get it to work with the recursive accordion
 Update [file] (file browser) to use new sub-categories system ($file_manager['main']->get_subcategories instead of $settings['categories'][$id]['subcategories'])
 Allow options to change sorting order for files & categorys. (Either custom, or alphabetically)
 
 TODO:
+Fix variable names in application/view/js/admin.js
+Change class names
 Possibly add pagination to backend file/category manager
 Figure out how to get a parent page link to work.
 Add "pretty" urls
