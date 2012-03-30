@@ -10,3 +10,10 @@
     Worked on accordion (making it sortable)
     Updated options to work from parent::$options instead of get_options
     Fixed issue where if a file/category had a belt or program set that got deleted and nothing filled it's place the page would break
+
+3/30/2012 - Commit 1
+    Revamped categories/subcategories; Hopefully made them sortable and more rebust with naming/renaming, etc
+    Added support for changing permissions under ma_accounts and having it work here (could still be buggy)
+    Fixed File Permissions page where belt & programs access weren't displaying their "not set" text correctly
+    Changed "X not set" text to "N/A"
+

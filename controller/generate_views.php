@@ -13,6 +13,164 @@ class generate_views extends file_manager {
         add_plugins_page('Manage file manager options. Integrated with MA Accounts.', 'File Manager', 'administrator', 'file_manager', array(&$this, 'render_backend'));
     }
 
+    public function generate_subcategory_html($array, $current_level=0) {
+        global $file_manager;
+
+        $ordered_array = array();
+        $iterations = array();
+        $position_modifier = array();
+
+        //CodeBlock to sort the array by id length
+        array_walk($array, function($array_value, $array_key) use(&$ordered_array, &$iterations, &$position_modifier) {
+            $id_to_find = explode('_', $array_value['id']);
+            array_pop($id_to_find);
+            $id_to_find = implode('_', $id_to_find);
+
+            //Subcategories of the child category
+            if (preg_match('/_/', $id_to_find)) {
+                //Find offset position
+                $array_position = array_search($id_to_find, $iterations);
+
+                //If a position_modifier for the offset isn't defined, make it 1
+                if (!array_key_exists($id_to_find, $position_modifier)) {
+                    $position_modifier[$id_to_find] = 1;
+                }
+
+                $temp_array = array_merge(array_slice($ordered_array, 0, $array_position+$position_modifier[$id_to_find], True), array($array_value), array_slice($ordered_array, $array_position+$position_modifier[$id_to_find], NULL, True));
+                $temp_iterations = array_merge(array_slice($iterations, 0, $array_position+$position_modifier[$id_to_find]), array($array_value['id']), array_slice($iterations, $array_position+$position_modifier[$id_to_find]));
+                $iterations = $temp_iterations;
+
+                //Variables used by position_modifier logic
+                $array_walk_id = array_reverse(explode('_', $id_to_find));
+                $array_walk_iterations = count($array_walk_id);
+
+                //CodeBlock used to update all the parent position modifiers, as well as the current one
+                array_walk($array_walk_id, function($id_value, $id_key) use(&$array_walk_iterations, &$position_modifier, $array_walk_id) {
+                    $id_to_increase = array();
+                    $array_walk_id_as_for = array_reverse($array_walk_id);
+                    for ($i=0; $i<($array_walk_iterations-1); $i++) {
+                        if (isset($array_walk_id_as_for[$i])) {
+                            $id_to_increase[] = $array_walk_id_as_for[$i];
+                        }
+                    }
+                    $id_to_increase[] = $id_value;
+                    $id_to_increase = implode('_', $id_to_increase);
+                    $position_modifier[$id_to_increase]++;
+                    $array_walk_iterations--;
+                });
+                //End position modifier update logic
+
+                $ordered_array = $temp_array;
+
+            //Direct children of the parent category
+            } else {
+                $ordered_array[] = $array_value;
+                $iterations[] = $array_value['id'];
+            }
+        });
+
+        $array = $ordered_array;
+        //End sort array by id
+
+        $settings = get_option('file_manager_settings');
+        $permissions_settings = get_option($settings['permissions']['options_name']);
+
+        //Start a new accordion level
+        echo '<div class="accordion">';
+
+        //Start actually building the HTML for subcategories
+        array_walk($array, function($array_value, $array_key) use($array, &$current_level, $file_manager, $settings, $permissions_settings) {
+            if ($settings['permissions']['use']) {
+                $belt_access = (!empty($permissions_settings['belts'][$sub_category_value['belt_access']]['name'])) ? $permissions_settings['belts'][$sub_category_value['belt_access']]['name']  : 'N/A';
+
+                $programs_access = explode(',', $sub_category_value['programs_access']);
+                    array_walk($programs_access, function($program_value, $program_key) use(&$programs_access, $permissions_settings) {
+                    $programs_access[$program_key] = $permissions_settings['programs'][$program_value]['name'];
+                    });
+                $programs_access = (!empty($programs_access[0])) ? implode(', ', $programs_access) : 'N/A';
+            }
+
+            $display_empty_category_text = 'You haven\'t set any sub-categories! <a href="plugins.php?page=file_manager&amp;id=' . $array_value['id'] . '&amp;action=add_subcategory#categories">Add</a> one now.';
+            $display_name = '
+            <a class="update" style="position: absolute; top: 7px; left: 21px;" title="Update Category" href="plugins.php?page=file_manager&amp;id=' . $array_value['id'] . '&amp;action=update_category#categories"><span class="ui-icon ui-icon-pencil"></span></a>
+            <a class="delete" style="position: absolute; top: 7px; left: 36px;" title="Delete Category &amp; All Sub-Categories" href="plugins.php?page=file_manager&amp;id=' . $array_value['id'] . '&amp;action=delete_category#categories"><span class="ui-icon ui-icon-trash"></span></a>
+            <a class="add" style="position: absolute; top: 7px; left: 51px;" title="Add Sub-Category" href="plugins.php?page=file_manager&amp;id=' . $array_value['id'] . '&amp;action=add_subcategory#categories"><span class="ui-icon ui-icon-plusthick"></span></a>
+            <a class="accordion-href" href="#">
+            <span style="padding-left: 47px;">' . esc_html($array_value['name']) . '</span>';
+            $display_name .= (True == $settings['permissions']['use']) ? '<br /> Belt Access: ' . esc_html($belt_access)  . ' &bull; Programs Access: ' . esc_html($programs_access) . '</a>' : '</a>';
+            //End writing $display_name
+
+            //Go down a level
+            if (preg_match('/' . $array_value['id'] . '/', $array[$array_key+1]['id'])) {
+                $array_id = explode('_', $array_value['id']);
+                if (count($array_id) == 2) {
+                    $current_level = 1;
+                } else {
+                    $current_level++;
+                }
+                ?>
+                <div id="<?php echo $array_value['id']; ?>">
+                <h3><?php echo $display_name; ?></h3>
+                <div class="jquery_accordion_content"><div style="display: none"><?php echo $display_empty_category_text; ?></div>
+                <div class="accordion">
+                <?php
+            } else {
+                $array_id = explode('_', $array_value['id']);
+                array_pop($array_id);
+                $array_id = implode('_', $array_id);
+                //Go to a level
+                if (count($array) === ($array_key+1) || !preg_match('/' . $array_id . '/', $array[$array_key+1]['id'])) {
+                    $new_current_level = $current_level;
+                    ?>
+                    <div id="<?php echo $array_value['id']; ?>">
+                    <h3><?php echo $display_name; ?></h3>
+                    <div class="jquery_accordion_content">
+                    <div><?php echo $display_empty_category_text; ?></div>
+                    </div>
+                    </div>
+                    <?php
+                    for ($i=1; $i<$current_level; $i++) {
+                        $new_current_level--;
+                        echo '</div></div></div>';
+                    }
+
+                    $next_array_id = explode('_', $array[$array_key+1]['id']);
+                    if ($new_current_level == 1 && count($next_array_id) == 2) {
+                        if (count($array) === $array_key+1) {
+                            echo '</div></div></div>';
+                        }
+                        echo '</div></div></div>';
+                    }
+
+                    if (count($array) === $array_key+1) {
+                        if ($current_level == 1) {
+                            echo '</div></div></div></div>';
+                        } else {
+                            echo '</div></div></div></div>';
+                        }
+                    }
+
+                    $array_id = explode('_', $array_id);
+                    array_pop($array_id);
+                    $array_id = implode('_', $array_id);
+                    if (!preg_match('/' . $array_id . '/', $array[$array_key+1]['id']) && preg_match('/' . $array[$array_key+1]['id'] . '/', $array[$array_key+2]['id'])) {
+                        echo '</div><div class="accordion">';
+                    }
+
+                    $current_level = $new_current_level;
+                } else { //Stay at level
+                    ?>
+                    <div id="<?php echo $array_value['id']; ?>">
+                    <h3><?php echo $display_name; ?></h3>
+                    <div class="jquery_accordion_content"><div style="display: none"><?php echo $display_empty_category_text; ?></div></div>
+                    </div>
+                    <?php
+                }
+            }
+        });
+        //End building HTML
+    } //End generate_subcategory_html
+
     public function render_backend() {
         global $file_manager;
         if (current_user_can('administrator')) {

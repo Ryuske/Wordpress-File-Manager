@@ -4,23 +4,24 @@ To be used with PHP versions >=5.3
 View CHANGELOG for detailed updates to commit
 
 Known Bugs:
-Editing a category unsets its name, and you can't reset it
 
 TODO (ordered):
-Make sorting categories functional
-    Figure out how to get it to work with the recursive accordion
+Check to see if everywhere is using the new category system (i.e. as an array)
 Update [file] (file browser) to use new sub-categories system ($file_manager['main']->get_subcategories instead of $settings['categories'][$id]['subcategories'])
+Check if sorting works
 Allow options to change sorting order for files & categorys. (Either custom, or alphabetically)
+Run through code and make sure nothing is obsolete
 
 TODO:
-Fix variable names in application/view/js/admin.js
-Change class names
-Possibly add pagination to backend file/category manager
+Fix awesome XSS exploitatives in Category ids (with recursive ids). In $file_manager['generate_views']->generate_subcategory_html() and dialogs.php
+Change class names - Which classes???
 Figure out how to get a parent page link to work.
 Add "pretty" urls
-Add timestamp to belt order, and in the event that it's changed update permissions for categories & files
-Figure out how to style File Permissions dialog in regards to categories (or more specifically sub-categories)
+
 Localize file uploading, auto attach, and add ability to unatach (if possible)
 When changing attachment page, update all current attachments to new page
+
+Possibly add pagination to backend file manager (or, figure out a better way to style File Permissions). Was thinking about moving the Add to Category part to the categories page and just leaving this page for actual file permissions
 Figure out how to style File Permissions part of file manager
-Figure out how to style attach to category thing in edit file
+Figure out how to style File Permissions dialog (add and edit) in regards to categories (or more specifically sub-categories)
+

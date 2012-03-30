@@ -1,9 +1,4 @@
 /*
- * Variable defintions
- */
-var file_manager = {'sortable_original_order': null, 'ul_order': Array()};
-
-/*
  * Add tabs for navigation
  */
 jQuery(document).ready(function(){
@@ -36,28 +31,10 @@ jQuery(function() {
         axis: "y",
         handle: "h3",
         update: function() {
-            /***********************READ ME***************************
-             * DONE - Need to change sortable('toArray') to the whole accordion and not just the recursion. 
-             * add html form
-             * Add PHP backend
-             */
-            var new_order = jQuery('#accordion_content').sortable('toArray');
-            /*var temp_indexOf;
-            var iterations=0;
-            for (var element in new_order) {
-                temp_indexOf = file_manager.sortable_original_order.indexOf(new_order[element]);
-                jQuery('#sortable_trash div').children().eq(iterations).html(file_manager.ul_order[temp_indexOf]);
-                iterations++;
-            }*/
-
-            file_manager.sortable_original_order = new_order;
-            /*file_manager.ul_order = Array();
-            for (var i=0; i<file_manager.sortable_original_order.length; i++) {
-                file_manager.ul_order.push(jQuery('#sortable_trash div').children().eq(i).html());
-            }*/
+            var new_order = jQuery('#accordion_content').html();
             
-            jQuery('#update_category_order #new_order').val(new_order);
-            //jQuery('#update_category_order').submit();
+            jQuery('#update_category_order .new_order').val(new_order);
+            jQuery('#update_category_order').submit();
         },
         stop: function(event, ui) {
             ui.item.children( "h3" ).triggerHandler( "focusout" );
@@ -77,39 +54,6 @@ jQuery('.accordion h3 .add').click(function() {
     window.location = jQuery(this).attr('href');
 });
 //End block
-
-/*
- * Add sortable content, used on Belts & Programs to make belts sortable.
- */
-jQuery('#sortable').sortable({
-    placeholder: 'ui-state-highlight file_manager_sortable_placeholder',
-    update: function(browserEvent, item) {
-        var new_order = jQuery(this).sortable('toArray');
-        var temp_indexOf;
-        var iterations=0;
-
-        for (var element in new_order) {
-            temp_indexOf = file_manager.sortable_original_order.indexOf(new_order[element]);
-            jQuery('#sortable_trash div').children().eq(iterations).html(file_manager.ul_order[temp_indexOf]);
-            iterations++;
-        }
-
-        file_manager.sortable_original_order = new_order;
-        file_manager.ul_order = Array();
-        for (var i=0; i<file_manager.sortable_original_order.length; i++) {
-            file_manager.ul_order.push(jQuery('#sortable_trash div').children().eq(i).html());
-        }
-
-        jQuery('#update_belt_order #new_order').val(new_order);
-        jQuery('#update_belt_order').submit();
-    }
-});
-jQuery('#sortable').disableSelection();
-
-file_manager.sortable_original_order = jQuery('#sortable').sortable('toArray');
-for (var i=0; i<file_manager.sortable_original_order.length; i++) {
-    file_manager.ul_order.push(jQuery('#sortable_trash div').children().eq(i).html());
-}
 
 /*
  * Begin adding dialogs for jQuery UI

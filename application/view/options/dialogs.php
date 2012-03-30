@@ -124,8 +124,8 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_file') {
 
 <!--Add Sub-Category Dialog-->
 <?php
-if (is_numeric($_GET['id']) && $_GET['action'] === 'add_subcategory') {
-    $id = (int) $_GET['id'];
+if (isset($_GET['id']) && $_GET['action'] === 'add_subcategory') {
+    $id = $_GET['id'];
     ?>
     <Script type="text/javascript">jQuery(document).ready(function(){jQuery('#add_subcategory').dialog('open')});</script>
     <?php
@@ -185,10 +185,9 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'add_subcategory') {
 </div>
 
 <!--Update Category Dialog-->
-<!--Update this to work with pretty sub-categories-->
 <?php
-if (is_numeric($_GET['id']) && $_GET['action'] === 'update_category') {
-    $id = (int) $_GET['id'];
+if (isset($_GET['id']) && $_GET['action'] === 'update_category') {
+    $id = $_GET['id'];
     ?>
     <script type="text/javascript">jQuery(document).ready(function(){jQuery('#update_category').dialog('open')});</script>
     <?php
@@ -219,7 +218,7 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_category') {
                     <option disabled="disabled">-----------------</option>
                     <?php
                     array_walk($permissions_settings['belts'], function($belt_value, $belt_key) use($settings, $id) {
-                    $selected = ('' != $settings['categories'][$id]['belt_access'] && $settings['categories'][$id]['belt_access'] == $belt_value['id']) ? 'selected="selected"' : '';
+                    $selected = ('' !== $settings['categories'][$id]['belt_access'] && $settings['categories'][$id]['belt_access'] == $belt_value['id']) ? 'selected="selected"' : '';
                     echo '<option value="' . esc_html($belt_value['id']) . '" ' . $selected . '>' . esc_html($belt_value['name']) . '</option>';
                     });
                     ?>
@@ -229,7 +228,7 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_category') {
                 <table>
                     <tbody>
                     <?php
-                    $temp = (NULL !== $settings['categories'][$id]['programs_access'] && False !== $settings['categories'][$id]['programs_access']) ? explode(',', $settings['categories'][$id]['programs_access']) : '';
+                    $temp = (!empty($settings['categories'][$id]['programs_access']) || 0 === $settings['categories'][$id]['programs_access']) ? explode(',', $settings['categories'][$id]['programs_access']) : '';
                     array_walk($permissions_settings['programs'], function($program_value, $program_key) use($temp) {
                         $checked = (is_array($temp) && in_array($program_value['id'], $temp)) ? 'checked="checked"' : '';
                         ?>
@@ -254,8 +253,8 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_category') {
 
 <!--Delete Category Dialog-->
 <?php
-if (is_numeric($_GET['id']) && $_GET['action'] === 'delete_category') {
-    $id = (int) $_GET['id'];
+if (isset($_GET['id']) && $_GET['action'] === 'delete_category') {
+    $id = $_GET['id'];
     ?>
     <script type="text/javascript">jQuery(document).ready(function(){jQuery('#delete_category').dialog('open')});</script>
     <?php

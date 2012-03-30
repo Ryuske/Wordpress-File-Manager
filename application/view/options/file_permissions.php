@@ -31,12 +31,12 @@
                 if ($settings['permissions']['use']) {
                     $temp = array('belt_access' => $settings['files'][$attachment_value->ID]['belt_access'], 'programs_access' => explode(',', $settings['files'][$attachment_value->ID]['programs_access']));
 
-                    $temp['belt_access'] = ('' !== $temp['belt_access']) ? $permissions_settings['belts'][$temp['belt_access']]['name'] : 'No belt set';
+                    $temp['belt_access'] = (!empty($temp['belt_access']) || 0 === $temp['belt_access']) ? $permissions_settings['belts'][$temp['belt_access']]['name'] : 'N/A';
                     array_walk($temp['programs_access'], function($temp_value, $temp_key) use(&$temp, $permissions_settings) {
                         $temp['programs_access'][$temp_key] = $permissions_settings['programs'][$temp_value]['name'];
                     });
 
-                    $temp['programs_access'] = (NULL !== $temp['programs_access'][0]) ? implode(', ', $temp['programs_access']) : 'Not enrolled in any programs';
+                    $temp['programs_access'] = (!empty($temp['programs_access'][0]) || 0 === $temp['programs_access']) ? implode(', ', $temp['programs_access']) : 'N/A';
                     ?>
                     <td><?php esc_html_e($temp['belt_access']); ?></td>
                     <td><?php esc_html_e($temp['programs_access']); ?></td>

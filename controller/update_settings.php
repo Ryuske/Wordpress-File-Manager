@@ -116,6 +116,43 @@ class update_settings extends file_manager {
                 }
                 break;
             case 'categories':
+                if (array_key_exists('new_order', $input)) {
+                    $category_by_id = array();
+                    array_walk_recursive($vo_value, function($array_value, $array_key) use(&$category_by_id) {
+                        $category_by_id[$array_value['id']] = $array_value;
+                    });
+                    $new_order = array();
+                    $new_order_ids = array();
+                    $new_order_array = array();
+
+                    preg_match_all('/<div\ id="(.*?)"/', $input['new_order'], $new_order_ids);
+                    $new_order_ids = $new_order_ids[1];
+
+                    array_walk($new_order_ids, function($array_value, $array_key) use(&$new_order_array, $category_by_id) {
+                        if (preg_match('/_/', $array_value)) {
+                            $temp_temp_array = array();
+                            $temp_array = array();
+                            $array_to_walk = array_reverse(explode('_', $array_value));
+                            array_walk(array_reverse(explode('_', $array_value)), function($recursive_array_value, $recursive_array_key) use(&$temp_temp_array, &$temp_array, &$array_to_walk, $category_by_id) {
+                                if (empty($temp_array)) {
+                                    $temp_temp_array[implode('_', $array_to_walk)] = $category_by_id[implode('_', $array_to_walk)];
+                                } else {
+                                    array_shift($array_to_walk);
+                                    $temp_temp_array[implode('_', $array_to_walk)] = $temp_array;
+                                    $temp_temp_array = array_reverse($temp_temp_array, True);
+                                    array_pop($temp_temp_array);
+                                }
+                                $temp_array = $temp_temp_array;
+                            });
+                            $new_order_array = array_merge_recursive($new_order_array, $temp_array);
+                        } else {
+                            $new_order_array[(int) $array_value] = $category_by_id[(int) $array_value];
+                        }
+                    });
+
+                    $valid_options['categories'] = $new_order;
+                }
+
                 //CodeBlock deleting categories
                 if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories']) && !array_key_exists('name', $input)) {
                     $temp = $valid_options['categories'][$input['category_id']];
@@ -135,24 +172,34 @@ class update_settings extends file_manager {
                     //Wether or not we're updating or adding.
                     switch ($input['category_action']) {
                         case 'subcategory': //Adding a subcategory
-                            end($valid_options['categories']);
-                            $temp[0] = key($valid_options['categories']);
-                            reset($valid_options['categories']);
+                            end($vo_value);
+                            $temp[0] = key($vo_value);
+                            reset($vo_value);
+                            $temp[0] = explode('_', $temp[0]);
+                            $temp[0] = array_reverse($temp[0]);
+                            $temp[0] = $temp[0][0];
                             $temp[0]++;
-                            $input['name'] = $valid_options['categories'][$input['category_id']]['name'] . '->' . $input['name'];
+                            $temp[0] = (array_key_exists($input['category_id'], $vo_value)) ? $input['category_id'] . '_' . $temp[0] : '';
+                            //echo $temp[0];
+                            //die();
                             break;
-                        case 'update':
-                            $temp[0] = (array_key_exists($input['category_id'], $valid_options['categories'])) ? $input['category_id'] : '';
-                            $input['name'] = $valid_options[$input['category_id']]['name'];
+                        case 'update': //Updating a category
+                            $temp[0] = (array_key_exists($input['category_id'], $vo_value) && '' !== trim($input['name'])) ? $input['category_id'] : '';
+                            print_r($vo_value);
+                            //$input['name'] = $vo_value[$temp[0]]['name'];
+                            //var_dump($temp[0]);
+                            //echo $input['name'];
+                            //die();
                             break;
                         default: //Add
-                            end($valid_options['categories']);
-                            $temp[0] = key($valid_options['categories']);
-                            reset($valid_options['categories']);
+                            end($vo_value);
+                            $temp[0] = key($vo_value);
+                            reset($vo_value);
                             $temp[0] = (isset($temp[0])) ? $temp[0]+1 : $temp[0] = 0;
                             break;
                     }
 
+                    //Update $valid_options based on $temp[0] as defined above
                     if ('' !== $temp[0]) {
                         if ($parent_options['permissions']['use']) {
                             if (array_key_exists($input['belt'], $permissions_settings['belts'])) {

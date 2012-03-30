@@ -129,13 +129,13 @@ class file_manager {
         return False;
     } //End check_permissions
 
-    public function get_subcategories($category) {
+    public function get_subcategories($category_id) {
         $categories = get_option('file_manager_settings');
         $categories = $categories['categories'];
         $return = array();
-        array_walk($categories, function($category_value, $category_key) use ($category, &$return) {
-            if (preg_match('/' . $category . '/', $category_value['name']) && $category_value['name'] !== $category) {
-                $return[] = $category_value['id'];
+        array_walk($categories, function($category_value, $category_key) use ($category_id, &$return) {
+            if (preg_match('/' . $category_id . '_/', $category_value['id'])) {
+                $return[] = $category_value;
             }
         });
         return $return;
