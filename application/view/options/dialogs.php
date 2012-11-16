@@ -15,7 +15,7 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_file') {
 	<form id="edit_file" action="options.php#file_permissions" method="post">
 	    <?php settings_fields('file_manager_settings'); ?>
 	    <input name="file_manager_settings[file_id]" type="hidden" value="<?php echo (int) $id; ?>" />
-	    <input type="hidden" name="_wp_http_referer" value="/wp-admin/plugins.php?page=file_manager&amp;action=update_file">
+            <input type="hidden" name="_wp_http_referer" value="<?php admin_url(); ?>plugins.php?page=file_manager&amp;action=update_file">
 
 	    <label class="file_manager_label">Categories</label> <br />
 	    <table>
@@ -158,7 +158,7 @@ if (isset($_GET['id']) && $_GET['action'] === 'add_subcategory') {
         ?>
         <form id="add_subcategory_form" action="options.php#categories" method="post">
             <?php settings_fields('file_manager_settings'); ?>
-            <input name="_wp_http_referer" type="hidden" value="/wp-admin/plugins.php?page=file_manager&amp;action=add_subcategory" />
+        <input name="_wp_http_referer" type="hidden" value="<?php admin_url(); ?>plugins.php?page=file_manager&amp;action=add_subcategory" />
             <input name="file_manager_settings[category_action]" type="hidden" value="subcategory" />
             <input name="file_manager_settings[category_id]" type="hidden" value="<?php echo $id; ?>" />
 
@@ -220,13 +220,12 @@ if (isset($_GET['id']) && $_GET['action'] === 'update_category') {
 ?>
 <div id="update_category" title="Update Category">
     <?php
-    if (array_key_exists($id, $settings['categories']) && $_GET['action'] === 'update_category') {
-        $display_name = array_reverse(explode('->', $settings['categories'][$id]['name']));
-        $display_name = $display_name[0];
+    if (is_array($file_manager['main']->get_subcategory($id)) && $_GET['action'] === 'update_category') {
+        $display_name = $file_manager['main']->get_subcategory($id, 'name');
         ?>
         <form id="update_category_form" action="options.php#categories" method="post">
             <?php settings_fields('file_manager_settings'); ?>
-            <input name="_wp_http_referer" type="hidden" value="/wp-admin/plugins.php?page=file_manager&amp;action=update_category">
+        <input name="_wp_http_referer" type="hidden" value="<?php admin_url(); ?>plugins.php?page=file_manager&amp;action=update_category">
             <input name="file_manager_settings[category_action]" type="hidden" value="update" />
             <input name="file_manager_settings[category_id]" type="hidden" value="<?php echo $id; ?>" />
 
@@ -244,7 +243,7 @@ if (isset($_GET['id']) && $_GET['action'] === 'update_category') {
                     <?php
                     if (!empty($permissions_settings['belts'])) {
                         array_walk($permissions_settings['belts'], function($belt_value, $belt_key) use($settings, $id) {
-                            $selected = ('' !== $settings['categories'][$id]['belt_access'] && $settings['categories'][$id]['belt_access'] == $belt_value['id']) ? 'selected="selected"' : '';
+                            $selected = ('' !== $file_manager['main']->get_subcategory($id, 'belt_access') && $file_manager['main']->get_subcategory($id, 'belt_access') == $belt_value['id']) ? 'selected="selected"' : '';
                             echo '<option value="' . esc_html($belt_value['id']) . '" ' . $selected . '>' . esc_html($belt_value['name']) . '</option>';
                         });
                     }
@@ -255,14 +254,14 @@ if (isset($_GET['id']) && $_GET['action'] === 'update_category') {
                 <table>
                     <tbody>
                     <?php
-                    $temp = (!empty($settings['categories'][$id]['programs_access']) || 0 === $settings['categories'][$id]['programs_access']) ? explode(',', $settings['categories'][$id]['programs_access']) : '';
+                    $temp = ($file_manager['main']->get_subcategory($id, 'programs_access') || 0 === $file_manager['main']->get_subcategory($id, 'programs_access')) ? explode(',', $file_manager['main']->get_subcategory($id, 'programs_access')) : '';
                     if (!empty($permissions_settings['programs'])) {
                         array_walk($permissions_settings['programs'], function($program_value, $program_key) use($temp) {
                             $checked = (is_array($temp) && in_array($program_value['id'], $temp)) ? 'checked="checked"' : '';
                             ?>
                             <tr>
-                            <td><?php esc_html_e($program_value['name']); ?></td>
-                            <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" <?php echo $checked; ?> /></td>
+                                <td><?php esc_html_e($program_value['name']); ?></td>
+                                <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" <?php echo $checked; ?> /></td>
                             </tr>
                             <?php
                         });
@@ -291,13 +290,15 @@ if (isset($_GET['id']) && $_GET['action'] === 'delete_category') {
 ?>
 <div id="delete_category" title="Delete Category" style="text-align: center;">
     <?php
-    if (array_key_exists($id, $settings['categories']) && $_GET['action'] === 'delete_category') {
+    if (is_array($file_manager['main']->get_subcategory($id)) && $_GET['action'] === 'delete_category') {
 	?>
-	Are you sure you want to delete the category: <br />
-	<?php esc_html_e($settings['categories'][$id]['name']); ?>
+    Are you sure you want to delete the category: <br />
+    <?php
+       esc_html_e($file_manager['main']->get_subcategory($id, 'name'));
+    ?>
 	<form id="delete_category_form" action="options.php#categories" method="post">
 	    <?php settings_fields('file_manager_settings'); ?>
-	    <input type="hidden" name="_wp_http_referer" value="/wp-admin/plugins.php?page=file_manager&amp;action=delete_category">
+    <input type="hidden" name="_wp_http_referer" value="<?php admin_url(); ?>plugins.php?page=file_manager&amp;action=delete_category">
 	    <input name="file_manager_settings[category_id]" type="hidden" value="<?php echo $id; ?>" />
 	</form>
 	<?php

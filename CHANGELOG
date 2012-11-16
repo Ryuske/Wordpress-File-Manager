@@ -1,3 +1,9 @@
+11/16/2012 - Commit X
+    Fixed $file_manager['main']->get_subcategory()
+    Fixed updating & deleting categories
+    Updated README
+    Fixed issues in application/view/options/dialogs.php
+
 11/16/2012 - Commit 1
     Fixed issue in application/view/options/dialogs.php if no programs or belts exist
     Fixed issue in controller/update_settings.php if no programs or belts exist

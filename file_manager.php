@@ -131,26 +131,38 @@ class file_manager {
     } //End check_permissions
 
     /*
-     * Purpose: To find the sub-categories of a category;
+     * Purpose: To find the sub-category;
      * Param: string $category_id
-     * Param: boolean $return_all
-     * Usage: If you specify $return_all as False, then it will only return the "direct" sub-categories. I.e. only 1 sub-level down, instead of all of them
+     * Param: string $index_to_return
      */
-    public function get_subcategories($category_id, $return_all=True) {
+    public function &get_subcategory($category_id, $index_to_return=False) {
         $categories = get_option('file_manager_settings');
-        $categories = $categories['categories'];
-        $return = array();
-        $sub_levels = count(explode('_', $category_id));
-        array_walk($categories, function($category_value, $category_key) use ($category_id, $return_all, $sub_levels, &$return) {
-            $sub_levels++;
-            if (preg_match('/' . $category_id . '_/', $category_value['id'])) {
-                if ((False === $return_all && count(explode('_', $category_value['id'])) === $sub_levels) || True === $return_all) {
-                    $return[] = $category_value;
+        $categories = &$categories['categories'];
+        $temp = array($category_id, '', array());
+
+        if (!function_exists("find_subcat")) { //This line is needed to workaround some PHP issues where it was trying to create this function twice
+            function &find_subcat(&$category, $temp_key, &$temp) {
+                if (!empty($temp_key)) {
+                    $temp[1] = ($temp[1] === '') ? array_shift($temp_key) : $temp[1] . '_' . array_shift($temp_key);
+                    if ($temp[0] == $temp[1]) {
+                        $temp[2] = $category[$temp[1]];
+                        return 0;
+                    } else {
+                        find_subcat($category[$temp[1]]['subcategories'], $temp_key, $temp);
+                        return 0;
+                    }
                 }
             }
-        });
-        return $return;
-    } //End get_subcategories
+        }
+
+        find_subcat(&$categories, explode('_', $category_id), $temp);
+
+        if ($index_to_return) {
+            return $temp[2][$index_to_return];
+        } else {
+            return $temp[2];
+        }
+    } //End get_subcategory
 
     /*
      * Used for "pretty" urls

@@ -163,14 +163,26 @@ class update_settings extends file_manager {
                 //End sorting categories
 
                 //CodeBlock deleting categories
-                if (array_key_exists('category_id', $input) && array_key_exists($input['category_id'], $valid_options['categories']) && !array_key_exists('name', $input)) {
-                    $temp = $valid_options['categories'][$input['category_id']];
-                    array_walk($valid_options['categories'], function($category_value, $category_key) use($temp, &$valid_options) {
-                        if (preg_match('/' . $temp['name'] . '->/', $category_value['name'])) {
-                            unset($valid_options['categories'][$category_value['id']]);
+                global $file_manager;
+                if ($file_manager['main']->get_subcategory($input['category_id']) && !array_key_exists('name', $input)) {
+                    $temp = array($input['category_id'], '');
+
+                    if (!function_exists("delete_subcat")) { //This line is needed to workaround some PHP issues where it was trying to create this function twice
+                        function delete_subcat(&$category, $temp_key, &$temp) {
+                            if (!empty($temp_key)) {
+                                $temp[1] = ($temp[1] === '') ? array_shift($temp_key) : $temp[1] . '_' . array_shift($temp_key);
+                                if ($temp[0] == $temp[1]) {
+                                    unset($category[$temp[1]]);
+                                    return 0;
+                                } else {
+                                    delete_subcat($category[$temp[1]]['subcategories'], $temp_key, $temp);
+                                    return 0;
+                                }
+                            }
                         }
-                    });
-                    unset($valid_options['categories'][$temp['id']]);
+                    }
+
+                    delete_subcat($valid_options['categories'], explode('_', $input['category_id']), $temp);
                 }
                 //End deleting categories
 
@@ -199,35 +211,38 @@ class update_settings extends file_manager {
                             $temp[1] = array($input['category_id'], trim($input['name']));
                             $temp[5] = $valid_options['categories'];
 
-                            function subcat(&$category, $temp_key, $temp) {
-                                if (!empty($temp_key)) {
-                                    $temp[4] = ($temp[4] === '') ? array_shift($temp_key) : $temp[4] . '_' . array_shift($temp_key);
-                                    subcat($category[$temp[4]]['subcategories'], $temp_key, $temp);
-                                } else {
-                                    if (is_array($temp[5][$temp[1][0]]['subcategories'])) {
-                                        $temp[0] = key(array_reverse($category[$temp[1][0]]['subcategories']));
-                                        reset($category_value);
-                                        $temp[0] = explode('_', $temp[0]);
-                                        $temp[0] = array_reverse($temp[0]);
-                                        $temp[0] = $temp[0][0];
-                                        $temp[0]++;
-                                        $temp[0] = $temp[1][0] . '_' . $temp[0];
+                            if (!function_exists('add_subcat')) { //This line is needed to workaround some PHP issues where it was trying to create this function twice
+                                function add_subcat(&$category, $temp_key, $temp) {
+                                    if (!empty($temp_key)) {
+                                        $temp[4] = ($temp[4] === '') ? array_shift($temp_key) : $temp[4] . '_' . array_shift($temp_key);
+                                        add_subcat($category[$temp[4]]['subcategories'], $temp_key, $temp);
+                                        return 0;
                                     } else {
-                                        $temp[0] = $temp[1][0] . '_0';
+                                        if (is_array($temp[5][$temp[1][0]]['subcategories'])) {
+                                            $temp[0] = key(array_reverse($category[$temp[1][0]]['subcategories']));
+                                            reset($category_value);
+                                            $temp[0] = explode('_', $temp[0]);
+                                            $temp[0] = array_reverse($temp[0]);
+                                            $temp[0] = $temp[0][0];
+                                            $temp[0]++;
+                                            $temp[0] = $temp[1][0] . '_' . $temp[0];
+                                        } else {
+                                            $temp[0] = $temp[1][0] . '_0';
+                                        }
+
+                                        $category[$temp[0]] = array(
+                                            'id' => $temp[0],
+                                            'name' => $temp[1][1],
+                                            'belt_access' => $temp[2],
+                                            'programs_access' => $temp[3],
+                                            'subcategories' => '',
+                                        );
+                                        return 0;
                                     }
-
-                                    $category[$temp[0]] = array(
-                                        'id' => $temp[0],
-                                        'name' => $temp[1][1],
-                                        'belt_access' => $temp[2],
-                                        'programs_access' => $temp[3],
-                                        'subcategories' => '',
-                                    );
-
                                 }
                             }
 
-                            subcat($valid_options['categories'], explode('_', $temp[1][0]), $temp);
+                            add_subcat($valid_options['categories'], explode('_', $temp[1][0]), $temp);
 
                             //CodeBlock Debugging
                                 //$valid_options['categories'] = array();
@@ -238,12 +253,34 @@ class update_settings extends file_manager {
                             //End CodeBlock
                             break;
                         case 'update': //Updating a category
-                            $temp[0] = (array_key_exists($input['category_id'], $vo_value) && '' !== trim($input['name'])) ? $input['category_id'] : '';
-                            print_r($vo_value);
-                            //$input['name'] = $vo_value[$temp[0]]['name'];
-                            //var_dump($temp[0]);
-                            //echo $input['name'];
-                            //die();
+                            $temp[1] = array($input['category_id'], '', trim($input['name']));
+
+                            if (!function_exists('update_subcat')) { //This line is needed to workaround some PHP issues where it was trying to create this function twice
+                                function update_subcat(&$category, $temp_key, &$temp) {
+                                    if (!empty($temp_key)) {
+                                        $temp[1][1] = ($temp[1][1] === '') ? array_shift($temp_key) : $temp[1][1] . '_' . array_shift($temp_key);
+                                        if ($temp[1][0] == $temp[1][1]) {
+                                            $category[$temp[1][0]] = array(
+                                                'id' => $temp[0],
+                                                'name' => $temp[1][2],
+                                                'belt_access' => $temp[2],
+                                                'programs_access' => $temp[3],
+                                                'subcategories' => '',
+                                            );
+                                            return 0;
+                                        } else {
+                                            update_subcat($category[$temp[1][1]]['subcategories'], $temp_key, $temp);
+                                            return 0;
+                                        }
+                                    }
+                                }
+
+                                update_subcat($valid_options['categories'], explode('_', $input['category_id']), $temp);
+                            }
+
+                            //CodeBlock Debugging
+                                //die();
+                            //End CodeBlock
                             break;
                         default: //Add
                             end($vo_value);
