@@ -38,7 +38,7 @@ class update_settings extends file_manager {
                 }
 
                 array_walk($temp_programs_access, function($program_value, $program_key) use($permissions_settings, &$temp_programs_access) {
-                    if (!array_key_exists($program_value, $permissions_settings['programs'])) {
+                    if (!is_array($permissions_settings['programs']) || !array_key_exists($program_value, $permissions_settings['programs'])) {
                         unset($temp_programs_access);
                     }
                 });
@@ -179,13 +179,13 @@ class update_settings extends file_manager {
                     $temp = array('', '', '', '', '');
 
                     if ($parent_options['permissions']['use']) {
-                        if (array_key_exists($input['belt'], $permissions_settings['belts'])) {
+                        if (is_array($permissions_settings['belts']) && array_key_exists($input['belt'], $permissions_settings['belts'])) {
                             $temp[2] = $input['belt'];
                         }
 
                         if (array_key_exists('programs', $input)) {
                             array_walk($input['programs'], function($program_value, $program_key) use($permissions_settings, &$temp) {
-                                if (array_key_exists($program_key, $permissions_settings['programs'])) {
+                                if (is_array($permissions_settings['programs']) && array_key_exists($program_key, $permissions_settings['programs'])) {
                                     $temp[3] .=  $program_key . ',';
                                 }
                             });
@@ -196,47 +196,46 @@ class update_settings extends file_manager {
                     //Wether or not we're updating or adding.
                     switch ($input['category_action']) {
                         case 'subcategory': //Adding a subcategory
-                            $temp[1] = explode('_', $input['category_id']);
+                            $temp[1] = array($input['category_id'], trim($input['name']));
+                            $temp[5] = $valid_options['categories'];
 
-                            function add_subcategory(&$category_array, $temp, $input) {
-                                array_walk(&$category_array, function(&$category_value, $category_key) use($temp, $input) {
-                                    $temp_for_variable = explode('_', $category_key);
-
-                                    if (count($temp_for_variable) <= count(explode('_', $input['category_id'])) && is_array($category_value['subcategories'])) {
-                                        add_subcategory($category_value['subcategories'], $temp, $input);
+                            function subcat(&$category, $temp_key, $temp) {
+                                if (!empty($temp_key)) {
+                                    $temp[4] = ($temp[4] === '') ? array_shift($temp_key) : $temp[4] . '_' . array_shift($temp_key);
+                                    subcat($category[$temp[4]]['subcategories'], $temp_key, $temp);
+                                } else {
+                                    if (is_array($temp[5][$temp[1][0]]['subcategories'])) {
+                                        $temp[0] = key(array_reverse($category[$temp[1][0]]['subcategories']));
+                                        reset($category_value);
+                                        $temp[0] = explode('_', $temp[0]);
+                                        $temp[0] = array_reverse($temp[0]);
+                                        $temp[0] = $temp[0][0];
+                                        $temp[0]++;
+                                        $temp[0] = $temp[1][0] . '_' . $temp[0];
                                     } else {
-                                        for ($i = 0; $i < count($temp[1]); $i++) {
-                                            if ($temp_for_variable[$i] === $temp[1][$i] && ($i == (count($temp[1]) - 1))) {
-                                                if (is_array($category_value['subcategories'])) {
-                                                    $temp[0] = key(array_reverse($category_value['subcategories']));
-                                                    reset($category_value);
-                                                    $temp[0] = explode('_', $temp[0]);
-                                                    $temp[0] = array_reverse($temp[0]);
-                                                    $temp[0] = $temp[0][0];
-                                                    $temp[0]++;
-                                                    $temp[0] = $category_key . '_' . $temp[0];
-                                                } else {
-                                                    $temp[0] = $category_key . '_0';
-                                                }
-
-                                                $category_value['subcategories'][$temp[0]] = array(
-                                                    'id' => $temp[0],
-                                                    'name' => trim($input['name']),
-                                                    'belt_access' => $temp[2],
-                                                    'programs_access' => $temp[3],
-                                                    'subcategories' => '',
-                                                );
-                                            }
-                                        }
+                                        $temp[0] = $temp[1][0] . '_0';
                                     }
-                                });
+
+                                    $category[$temp[0]] = array(
+                                        'id' => $temp[0],
+                                        'name' => $temp[1][1],
+                                        'belt_access' => $temp[2],
+                                        'programs_access' => $temp[3],
+                                        'subcategories' => '',
+                                    );
+
+                                }
                             }
 
-                            add_subcategory($valid_options['categories'], $temp, $input);
+                            subcat($valid_options['categories'], explode('_', $temp[1][0]), $temp);
 
-                            //$valid_options['categories'] = array();
-                            //print_r($valid_options['categories']);
-                            //die();
+                            //CodeBlock Debugging
+                                //$valid_options['categories'] = array();
+                                /*echo '<pre>';
+                                print_r($valid_options['categories']);
+                                echo '</pre>';
+                                die();*/
+                            //End CodeBlock
                             break;
                         case 'update': //Updating a category
                             $temp[0] = (array_key_exists($input['category_id'], $vo_value) && '' !== trim($input['name'])) ? $input['category_id'] : '';
@@ -265,6 +264,10 @@ class update_settings extends file_manager {
                         );
 
                         //$valid_options['categories'] = array();
+                        /*echo '<pre>';
+                        debug_print_backtrace();
+                        echo '</pre>';
+                        die();*/
                     }
                 }
                 //End adding/updating categories

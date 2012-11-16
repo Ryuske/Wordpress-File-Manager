@@ -4,15 +4,19 @@ To be used with PHP versions >=5.3
 View CHANGELOG for detailed updates to commit
 
 Known Bugs:
+Installation: need to specifiy that Students-LoggedIn must be created
+Need to update help file to explain how to modify the physical layout
+
 
 TODO (prioratized):
 Task 5: Fix $file_manager['update_settings']->validate_settings() delete & update category options
-Task 1: Check if sorting categories works
+Task 1: Fix sorting categories
 Task 2: Allow options to change sorting order for files & categorys. (Either custom, or alphabetically) [application/view/category.php, application/view/options/categories.php]
 Task 3: Run through code and make sure nothing is obsolete
 Task 4: Fix awesome XSS exploitatives in Category ids (with recursive ids). In $file_manager['generate_views']->generate_categories_admin(), dialogs.php, application/views/category.php
 
 TODO:
+Change adding files to categories from the files page to the categories page. 
 Chnage class names (i.e. file_manager_update_settings)
 Figure out how to get a parent page link to work.
 Add "pretty" urls

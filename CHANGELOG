@@ -1,4 +1,9 @@
-Next - Commit X
+11/16/2012 - Commit 1
+    Fixed issue in application/view/options/dialogs.php if no programs or belts exist
+    Fixed issue in controller/update_settings.php if no programs or belts exist
+    Fixed adding subcategories:
+
+11/15/2012 - Commit 1
     Updated Help file
     Fixed issue with plugins_url() breaking when WordPress was installed into a subdir
     Fixed misc. stuff like spelling errors

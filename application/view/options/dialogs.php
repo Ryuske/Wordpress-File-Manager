@@ -21,20 +21,24 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_file') {
 	    <table>
 		<tbody>
 		    <?php
-		    array_walk($settings['categories'], function($category_value, $category_key) use($settings, $id) {
-			$checked = '';
-			array_walk(explode(',', $settings['files'][$id]['categories']), function($file_value, $file_key) use(&$checked, $category_value) {
-			    if ($file_value != '' && $file_value == $category_value['id']) {
-				$checked = 'checked="checked"';
-			    }
-			});
-			?>
-			<tr>
-			    <td><?php esc_html_e($category_value['name']); ?></td>
-			    <td><input name="file_manager_settings[file_categories][<?php echo (int) $category_value['id']; ?>]" type="checkbox" value="<?php echo (int) $category_value['id']; ?>" <?php echo $checked; ?> /></td>
-			</tr>
-			<?php
-		    });
+            if (!empty($settings['categories'])) {
+                array_walk($settings['categories'], function($category_value, $category_key) use($settings, $id) {
+                    $checked = '';
+                    if (!empty($settings['files'][$id]['categories'])) {
+                        array_walk(explode(',', $settings['files'][$id]['categories']), function($file_value, $file_key) use(&$checked, $category_value) {
+                            if ($file_value != '' && $file_value == $category_value['id']) {
+                                $checked = 'checked="checked"';
+                            }
+                        });
+                    }
+                    ?>
+                    <tr>
+                        <td><?php esc_html_e($category_value['name']); ?></td>
+                        <td><input name="file_manager_settings[file_categories][<?php echo (int) $category_value['id']; ?>]" type="checkbox" value="<?php echo (int) $category_value['id']; ?>" <?php echo $checked; ?> /></td>
+                    </tr>
+                    <?php
+                });
+            }
 		    ?>
 		</tbody>
 	    </table>
@@ -45,11 +49,13 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_file') {
 		<select name="file_manager_settings[belt]">
 		    <option value="">None</option>
 		    <option disabled="disabled">-----------------</option>
-		    <?php
-		    array_walk($permissions_settings['belts'], function($belt_value, $belt_key) use($settings, $id) {
-			$selected = ((!empty($settings['files'][$id]['belt_access']) || $settings['files'][$id]['belt_access'] === '0') && $settings['files'][$id]['belt_access'] == $belt_value['id']) ? 'selected="selected"' : '';
-			echo '<option value="' . esc_html($belt_value['id']) . '" ' . $selected . '>' . esc_html($belt_value['name']) . '</option>';
-		    });
+            <?php
+            if (!empty($permissions_settings['belts'])) {
+                array_walk($permissions_settings['belts'], function($belt_value, $belt_key) use($settings, $id) {
+                    $selected = ((!empty($settings['files'][$id]['belt_access']) || $settings['files'][$id]['belt_access'] === '0') && $settings['files'][$id]['belt_access'] == $belt_value['id']) ? 'selected="selected"' : '';
+                    echo '<option value="' . esc_html($belt_value['id']) . '" ' . $selected . '>' . esc_html($belt_value['name']) . '</option>';
+                });
+            }
 		    ?>
 		</select> <br /><br />
 
@@ -58,15 +64,17 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_file') {
 		    <tbody>
 			<?php
 			$temp = (NULL !== $settings['files'][$id]['programs_access'] && False !== $settings['files'][$id]['programs_access']) ? explode(',', $settings['files'][$id]['programs_access']) : '';
-			array_walk($permissions_settings['programs'], function($program_value, $program_key) use($temp) {
-			    $checked = (is_array($temp) && in_array($program_value['id'], $temp)) ? 'checked="checked"' : '';
-			    ?>
-			    <tr>
-				<td><?php esc_html_e($program_value['name']); ?></td>
-				<td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" <?php echo $checked; ?> /></td>
-			    </tr>
-			    <?php
-			});
+            if (!empty($permissions_settings['programs'])) {
+                array_walk($permissions_settings['programs'], function($program_value, $program_key) use($temp) {
+                    $checked = (is_array($temp) && in_array($program_value['id'], $temp)) ? 'checked="checked"' : '';
+                    ?>
+                    <tr>
+                    <td><?php esc_html_e($program_value['name']); ?></td>
+                    <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" <?php echo $checked; ?> /></td>
+                    </tr>
+                    <?php
+                });
+            }
 			?>
 		    </tbody>
 		</table>
@@ -94,9 +102,11 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_file') {
                 <option value="">None</option>
                 <option disabled="disabled">-----------------</option>
                 <?php
-                array_walk($permissions_settings['belts'], function($belt_value, $belt_key) {
-                    echo '<option value="' . esc_html($belt_value['id']) . '">' . esc_html($belt_value['name']) . '</option>';
-                });
+                if (!empty($permissions_settings['belts'])) {
+                    array_walk($permissions_settings['belts'], function($belt_value, $belt_key) {
+                        echo '<option value="' . esc_html($belt_value['id']) . '">' . esc_html($belt_value['name']) . '</option>';
+                    });
+                }
                 ?>
             </select><br /><br />
 
@@ -104,14 +114,16 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_file') {
             <table>
                 <tbody>
                     <?php
-                    array_walk($permissions_settings['programs'], function($program_value, $program_key) {
-                        ?>
-                        <tr>
-                            <td><?php esc_html_e($program_value['name']); ?></td>
-                            <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" /></td>
-                        </tr>
-                        <?php
-                    });
+                    if (!empty($permissions_settings['programs'])) {
+                        array_walk($permissions_settings['programs'], function($program_value, $program_key) {
+                            ?>
+                            <tr>
+                                <td><?php esc_html_e($program_value['name']); ?></td>
+                                <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" /></td>
+                            </tr>
+                            <?php
+                        });
+                    }
                     ?>
                 </tbody>
             </table>
@@ -134,11 +146,13 @@ if (isset($_GET['id']) && $_GET['action'] === 'add_subcategory') {
 <div id="add_subcategory" title="Add Sub-Category">
     <?php
     $true_id = false;
-    array_walk_recursive($settings['categories'], function($category_value, $category_key) use($id, &$true_id) {
-        if ($category_value == $id) {
-            $true_id = true;
-        }
-    });
+    if (!empty($settings['categories'])) {
+        array_walk_recursive($settings['categories'], function($category_value, $category_key) use($id, &$true_id) {
+            if ($category_value == $id) {
+                $true_id = true;
+            }
+        });
+    }
 
     if ($true_id === true && $_GET['action'] === 'add_subcategory') {
         ?>
@@ -160,9 +174,11 @@ if (isset($_GET['id']) && $_GET['action'] === 'add_subcategory') {
                     <option value="">None</option>
                     <option disabled="disabled">-----------------</option>
                     <?php
-                    array_walk($permissions_settings['belts'], function($belt_value, $belt_key) use($settings, $id) {
-                    echo '<option value="' . esc_html($belt_value['id']) . '">' . esc_html($belt_value['name']) . '</option>';
-                    });
+                    if (!empty($permissions_settings['belts'])) {
+                        array_walk($permissions_settings['belts'], function($belt_value, $belt_key) use($settings, $id) {
+                            echo '<option value="' . esc_html($belt_value['id']) . '">' . esc_html($belt_value['name']) . '</option>';
+                        });
+                    }
                     ?>
                 </select> <br /><br />
 
@@ -170,14 +186,16 @@ if (isset($_GET['id']) && $_GET['action'] === 'add_subcategory') {
                 <table>
                     <tbody>
                     <?php
-                    array_walk($permissions_settings['programs'], function($program_value, $program_key) use($temp) {
-                        ?>
-                        <tr>
-                        <td><?php esc_html_e($program_value['name']); ?></td>
-                        <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" /></td>
-                        </tr>
-                        <?php
-                    });
+                    if (!empty($permissions_settings['programs'])) {
+                        array_walk($permissions_settings['programs'], function($program_value, $program_key) use($temp) {
+                            ?>
+                            <tr>
+                            <td><?php esc_html_e($program_value['name']); ?></td>
+                            <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" /></td>
+                            </tr>
+                            <?php
+                        });
+                    }
                     ?>
                     </tbody>
                 </table>
@@ -224,10 +242,12 @@ if (isset($_GET['id']) && $_GET['action'] === 'update_category') {
                     <option value="">None</option>
                     <option disabled="disabled">-----------------</option>
                     <?php
-                    array_walk($permissions_settings['belts'], function($belt_value, $belt_key) use($settings, $id) {
-                    $selected = ('' !== $settings['categories'][$id]['belt_access'] && $settings['categories'][$id]['belt_access'] == $belt_value['id']) ? 'selected="selected"' : '';
-                    echo '<option value="' . esc_html($belt_value['id']) . '" ' . $selected . '>' . esc_html($belt_value['name']) . '</option>';
-                    });
+                    if (!empty($permissions_settings['belts'])) {
+                        array_walk($permissions_settings['belts'], function($belt_value, $belt_key) use($settings, $id) {
+                            $selected = ('' !== $settings['categories'][$id]['belt_access'] && $settings['categories'][$id]['belt_access'] == $belt_value['id']) ? 'selected="selected"' : '';
+                            echo '<option value="' . esc_html($belt_value['id']) . '" ' . $selected . '>' . esc_html($belt_value['name']) . '</option>';
+                        });
+                    }
                     ?>
                 </select> <br /><br />
 
@@ -236,15 +256,17 @@ if (isset($_GET['id']) && $_GET['action'] === 'update_category') {
                     <tbody>
                     <?php
                     $temp = (!empty($settings['categories'][$id]['programs_access']) || 0 === $settings['categories'][$id]['programs_access']) ? explode(',', $settings['categories'][$id]['programs_access']) : '';
-                    array_walk($permissions_settings['programs'], function($program_value, $program_key) use($temp) {
-                        $checked = (is_array($temp) && in_array($program_value['id'], $temp)) ? 'checked="checked"' : '';
-                        ?>
-                        <tr>
-                        <td><?php esc_html_e($program_value['name']); ?></td>
-                        <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" <?php echo $checked; ?> /></td>
-                        </tr>
-                        <?php
-                    });
+                    if (!empty($permissions_settings['programs'])) {
+                        array_walk($permissions_settings['programs'], function($program_value, $program_key) use($temp) {
+                            $checked = (is_array($temp) && in_array($program_value['id'], $temp)) ? 'checked="checked"' : '';
+                            ?>
+                            <tr>
+                            <td><?php esc_html_e($program_value['name']); ?></td>
+                            <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" <?php echo $checked; ?> /></td>
+                            </tr>
+                            <?php
+                        });
+                    }
                     ?>
                     </tbody>
                 </table>
