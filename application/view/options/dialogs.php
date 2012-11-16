@@ -133,7 +133,14 @@ if (isset($_GET['id']) && $_GET['action'] === 'add_subcategory') {
 ?>
 <div id="add_subcategory" title="Add Sub-Category">
     <?php
-    if (array_key_exists($id, $settings['categories']) && $_GET['action'] === 'add_subcategory') {
+    $true_id = false;
+    array_walk_recursive($settings['categories'], function($category_value, $category_key) use($id, &$true_id) {
+        if ($category_value == $id) {
+            $true_id = true;
+        }
+    });
+
+    if ($true_id === true && $_GET['action'] === 'add_subcategory') {
         ?>
         <form id="add_subcategory_form" action="options.php#categories" method="post">
             <?php settings_fields('file_manager_settings'); ?>
@@ -178,7 +185,7 @@ if (isset($_GET['id']) && $_GET['action'] === 'add_subcategory') {
             }
             ?>
         </form>
-        <div id="add_subcategory_notification" class="ui-state-error ui-corner-all file_manager_notification" style="display: none; margin-top: 10px;"><span class="ui-icon ui-icon-info" style="float: left;"></span>&nbsp;Your forgot to name your category!</div>
+        <div id="add_subcategory_notification" class="ui-state-error ui-corner-all file_manager_notification" style="display: none; margin-top: 10px;"><span class="ui-icon ui-icon-info" style="float: left;"></span>&nbsp;You forgot to name your category!</div>
         <?php
     }
     ?>

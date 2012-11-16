@@ -46,23 +46,115 @@
     <!--Help page-->
     <div id="help" class="ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide">
         <h1>Help</h1>
-        <label class="file_manager_label">Files</label>
         <p>
-            If you want to do anything with files (aside from viewing available ones), you'll have to enabled 'Use Permissions' in the 'Settings' page.
-        </p>
+            <h2>Files</h2>
+            <h5 style="line-height: 0;">Adding Files</h5>
+                <ol>
+                    <li>First upload the file under <a href="<?php echo admin_url(); ?>media-new.php" target="_blank">Media</a></li>
+                    <li>You will now be asked to enter information</li>
+                    <li>Click the <i>Save all changes</i> button</li>
+                    <li>
+                        You'll be redirected to a listing of all uploaded files.
+                        <ol>
+                            <li>Find the file you just uploaded</li>
+                            <li>Click the blue <i>Attach</i> link</li>
+                            <li>In the search box, type <i>Students-LoggedIn</i></i>
+                            <li>You *must* click the Pages radio</li>
+                            <li>Click the <i>Search</i> button</li>
+                            <li>Click the radio in-front of the <i>Students-LoggedIn</i> listing</li>
+                            <li>Click the <i>Select</i> button</li>
+                        </ol>
+                    </li>
+                    <li>It can now be viewed under the <i>File Permissions</i> tab</li>
+                </ol>
+            <h5 style="line-height: 0; margin-top: 25px;">Modiying Files</h5>
+                <ol>
+                    <li>
+                        Modifying meta-information
+                        <ol>
+                            <li>Go to the <a href="<?php echo admin_url(); ?>upload.php" target="_blank">WordPress Media</a> listings</li>
+                            <li>Locate the file you want to modify</li>
+                            <li>Hover over the file's listings, and click the blue <i>Edit</i> link</li>
+                            <li>Update the information accordingly</li>
+                            <li>Click the <i>Update Media</i> button</li>
+                        </ol>
+                    </li>
+                    <li>
+                        Modifying Category &amp; Permissions
+                        <ol>
+                            <li>Go to the <i>File Permissions</i> tab</li>
+                            <li>Locate the file you want to modify</li>
+                            <li>Click the <span class="ui-icon ui-icon-pencil" style="display: inline-block; position: relative; top: 3px;"></span> icon next to the file</li>
+                            <li>A dialog will now appear; Edit information accordingly</li>
+                            <li>Click the <i>Update</i> button</li>
+                        </ol>
+                    </li>
+                </ol>
+            <h5 style="line-height: 0; margin-top: 25px;">Remove Files</h5>
+                <ol>
+                    <li>Go to the <a href="" target="_blank">WordPress Media</a> listings</li>
+                    <li>Locate the file you want to remove</li>
+                    <li>Hover over the file's listings, and click the red <i>Delete Permanently</i> link</li>
+                    <li>Click <i>OK</i> in the dialog box that pops up</li>
+                </ol>
+            For information on applying access restrictions to files, please refer to <a href="#help_settings">Settings</a>.
+        </p><br />
 
-        <label class="file_manager_label">Categories</label>
         <p>
-            When adding a category, if you want to add sub-categories to a sub-category you show it's a sub-category with a -&gt;. <br />
-            For example: Files is a category and Audio is a sub-category to that, and you want to give Audio another sub-category of mp3.<br />
-            It would look like this, <span style="font-style: italics;">Files-&gt;Audio</span>. You can continue this pattern as far as you want (i.e. Files-&gt;Audio-&gt;mp3-&gt;Under 1 Minute)
-        </p>
+            <h2>Categories</h2>
+            <h5 style="line-height: 0;">Adding Categories</h5>
+                <ol>
+                    <li>Go to the <i>Categories</i> tab</li>
+                    <li>
+                        Adding a main category
+                        <ol>
+                            <li>Click on <span class="ui-icon ui-icon-plusthick" style="display: inline-block; position: relative; top: 3px;"></span><b><u>Add</u></b></li>
+                            <li>Enter the information in the popup dialog</li>
+                            <li>Click the <i>Add</i> button</li>
+                        </ol>
+                    </li>
+                    <li>
+                        Adding a sub-category
+                        <ol>
+                            <li>Locate the category you want your sub-category to be listed under</li>
+                            <li>Click the <span class="ui-icon ui-icon-plusthick" style="display: inline-block; position: relative; top: 3px;"></span> icon that is next to the category you want to list under</li>
+                            <li>Enter the information in the popup dialog</li>
+                            <li>Click the <i>Add</i> button</li>
+                        </ol>
+                    </li>
+                </ol>
+            <h5 style="line-height: 0; margin-top: 25px;">Modifying Categories</h5>
+                <ol>
+                    <li>Go to the <i>Categories</i> tab</li>
+                    <li>Locate the category you want to modify</li>
+                    <li>Click the <span class="ui-icon ui-icon-pencil" style="display: inline-block; position: relative; top: 3px;"></span> icon next to the categories name</li>
+                    <li>Enter the information in the dialog box</li>
+                    <li>Click the <i>Update</i> button</li>
+                </ol>
+            <h5 style="line-height: 0; margin-top: 25px;">Removing Categories</h5>
+                <ol>
+                    <li>Go to the <i>Categories</i> tab</li>
+                    <li>Locate the category you want remove</li>
+                    <li>Click the <span class="ui-icon ui-icon-trash" span="display: inline-block; position: relative; top: 3px;"></span> icon next to the categories name</li>
+                    <li>In the dialog that pops up click the <i>Delete</i> button</li>
+                </ol>
+            For information on applying access restrictions to categories, please refer to <a href="#help_settings">Settings</a>.
+        </p><br />
 
-        <label class="file_manager_label">Settings</label>
         <p>
-            You can use permissions inherited from another plugin (currently the only supported plugin is <a href="$value['sub_categories']">Martial Arts Student Manager</a>). <br />
-            All you have to do is check the box letting us know you want to use permissions, and then type in the options name the plugin is<br />
-            using for it's options. This should be documented on the 3rd party plugin somewhere.
+            <h2><a name="help_settings">Settings</a></h2>
+            <table class="file_manager_help_table">
+                <tbody>
+                    <tr>
+                        <td>Use Permissions</td>
+                        <td>This is used to enable the use of permissions (access restriction)</td>
+                    </tr>
+                    <tr>
+                        <td>Plugins Options Name</td>
+                        <td>This is used to integrate permissions plugin you want to use.<br />Please refer to the plugin you want to use to find out what goes here.<br />Currently the only supported plugin is <a href="https://github.com/Ryuske/Wordpress-Martial-Arts-Student-Manager" target="_blank">Martial Arts Accounts Manager</a></td>
+                    </td>
+                </tbody>
+            </table>
         </p>
         <p>Check us out on GitHub to track the latest updates and releases: <a href="https://github.com/Ryuske/Wordpress-File-Manager" target="_blank">https://github.com/Ryuske/Wordpress-File-Manager</a>
     </div>

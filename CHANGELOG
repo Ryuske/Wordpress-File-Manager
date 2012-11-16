@@ -1,8 +1,17 @@
-2/24/2012 - Commit 1
-    PDFs will now open in a new tab/window
+Next - Commit X
+    Updated Help file
+    Fixed issue with plugins_url() breaking when WordPress was installed into a subdir
+    Fixed misc. stuff like spelling errors
+    Changed the way the categories array is built (may have added more bugs)
+    Hopefully fixed category recursion
+    Reversed the order of the CHANGELOG so newest updates are first
+    Updated README
 
-1/25/2012 - Commit 1
-    Fixed recursion in sub-categories (hopefully now works in infinite recursion)
+3/30/2012 - Commit 1
+    Revamped categories/subcategories; Hopefully made them sortable and more rebust with naming/renaming, etc
+    Added support for changing permissions under ma_accounts and having it work here (could still be buggy)
+    Fixed File Permissions page where belt & programs access weren't displaying their "not set" text correctly
+    Changed "X not set" text to "N/A"
     Updated README
 
 3/16/2012 - Commit 1
@@ -11,9 +20,9 @@
     Updated options to work from parent::$options instead of get_options
     Fixed issue where if a file/category had a belt or program set that got deleted and nothing filled it's place the page would break
 
-3/30/2012 - Commit 1
-    Revamped categories/subcategories; Hopefully made them sortable and more rebust with naming/renaming, etc
-    Added support for changing permissions under ma_accounts and having it work here (could still be buggy)
-    Fixed File Permissions page where belt & programs access weren't displaying their "not set" text correctly
-    Changed "X not set" text to "N/A"
+2/24/2012 - Commit 1
+    PDFs will now open in a new tab/window
 
+1/25/2012 - Commit 1
+    Fixed recursion in sub-categories (hopefully now works in infinite recursion)
+    Updated README

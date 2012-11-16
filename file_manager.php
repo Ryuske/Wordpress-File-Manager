@@ -47,10 +47,11 @@ class file_manager {
         wp_enqueue_script('jquery-ui-core');
         wp_enqueue_script('jquery-ui-tabs');
         wp_enqueue_script('jquery-ui-dialog');
-        wp_register_style('black-tie', plugins_url('application/view/css/jquery-ui.css', __FILE__));
-        wp_register_style('fileManagerStyle', plugins_url('application/view/css/file_manager.css', __FILE__));
-        wp_register_script('fileManagerScript', plugins_url('application/view/js/admin.js', __FILE__));
-        wp_register_script('fileManagerJwplayer', plugins_url('application/view/js/jwplayer.js', __FILE__));
+        //Some issue exists in WordPress to where plugins_url($path, basename(__DIR__)) ends up dropping the second parameter. It only seems to accept __FILE__, __DIR__ & dirname()
+        wp_register_style('black-tie', plugins_url(basename(__DIR__) . '/application/view/css/jquery-ui.css'));
+        wp_register_style('fileManagerStyle', plugins_url(basename(__DIR__) . '/application/view/css/file_manager.css'));
+        wp_register_script('fileManagerScript', plugins_url(basename(__DIR__) . '/application/view/js/admin.js'));
+        wp_register_script('fileManagerJwplayer', plugins_url(basename(__DIR__) . '/application/view/js/jwplayer.js'));
 
         register_activation_hook(__FILE__, array(&$this, 'activate_plugin'));
     } //End __construct
@@ -90,10 +91,10 @@ class file_manager {
 
     /*
      * Purpose: To dertermin if a specific user has access to a category or file
-        * Param: int $user
-        * Param: int $belt
-        * Param: string $programs
-        * Return: Boolean
+     * Param: int $user
+     * Param: int $belt
+     * Param: string $programs
+     * Return: Boolean
      */
     public function check_permissions($user, $belt, $programs) {
         if (!$this->options['permissions']['use']) {
@@ -129,13 +130,23 @@ class file_manager {
         return False;
     } //End check_permissions
 
-    public function get_subcategories($category_id) {
+    /*
+     * Purpose: To find the sub-categories of a category;
+     * Param: string $category_id
+     * Param: boolean $return_all
+     * Usage: If you specify $return_all as False, then it will only return the "direct" sub-categories. I.e. only 1 sub-level down, instead of all of them
+     */
+    public function get_subcategories($category_id, $return_all=True) {
         $categories = get_option('file_manager_settings');
         $categories = $categories['categories'];
         $return = array();
-        array_walk($categories, function($category_value, $category_key) use ($category_id, &$return) {
+        $sub_levels = count(explode('_', $category_id));
+        array_walk($categories, function($category_value, $category_key) use ($category_id, $return_all, $sub_levels, &$return) {
+            $sub_levels++;
             if (preg_match('/' . $category_id . '_/', $category_value['id'])) {
-                $return[] = $category_value;
+                if ((False === $return_all && count(explode('_', $category_value['id'])) === $sub_levels) || True === $return_all) {
+                    $return[] = $category_value;
+                }
             }
         });
         return $return;
@@ -164,6 +175,6 @@ $file_manager = array('main' => '', 'update_settings' => '', 'generate_views' =>
 $file_manager['main'] = new file_manager;
 $file_manager['update_settings'] = new update_settings;
 $file_manager['generate_views'] = new generate_views;
-$generate_views = $file_manager['generate_views'];
+$generate_views = $file_manager['generate_views']; //Can possibly delete this.
 add_shortcode('file', array('generate_views', 'file_func'));
 ?>
