@@ -33,6 +33,19 @@
         <h1>Settings</h1>
         <form id="update_settings" name="update_settings" action="options.php#settings" method="post">
             <?php settings_fields('file_manager_settings'); ?>
+            <label>Attachment Page</label> <br />
+                <select name="file_manager_settings[attachment_page]">
+                    <option value="unset"></option>
+                    <?php
+                    $pages = get_pages(array('sort_order' => 'ASC', 'sort_column' => 'post_title', 'post_type' => 'page', 'post_status' => 'publish,private,draft'));
+                    if (is_array($pages)) {
+                        array_walk($pages, function($page_value, $page_key) use($settings) {
+                            echo '<option value="' . (int) $page_value->ID . '" ' . (($settings['attachment_page'] == $page_value->ID) ? 'selected="selected"' : '') . '>' . esc_html($page_value->post_title) . '</option>';
+                        });
+                    }
+                    ?>
+                </select> <br /><br />
+
             <label>Use Permissions</label>
                 <input name="file_manager_settings[permissions][use]" type="checkbox" value="true" <?php echo ($settings['permissions']['use']) ? 'checked="checked"' : ''; ?> /> <br /><br />
 

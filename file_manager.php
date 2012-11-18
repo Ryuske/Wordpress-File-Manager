@@ -13,6 +13,7 @@ require_once(__DIR__ . '/controller/generate_views.php');
 class file_manager {
     const __basepath__ = __DIR__;
     static public $options = array(
+        'attachment_page' => '', //The page you have to attach Media items to in-order for them to show up on the File Browser
         'permissions' => array(
             'use' => True,
             'options_name' => 'ma_accounts_settings'
@@ -131,11 +132,29 @@ class file_manager {
     } //End check_permissions
 
     /*
+     * Purpose: To check if a file exists in a given category
+     * Param: integer $file_id
+     * Param: integer $category_id
+     */
+    public function in_category($file_id, $category_id) {
+        global $file_manager;
+        $options = $file_manager['update_settings']->validate_settings();
+        $files = $options;
+        $files = $files['files'];
+
+        if (array_key_exists($file_id, $file_manager['generate_views']->attachments) && in_array($category_id, explode(',', $files[$file_id]['categories']))) {
+            return True;
+        } else {
+            return False;
+        }
+    } //End in_category
+
+    /*
      * Purpose: To find the sub-category;
      * Param: string $category_id
      * Param: string $index_to_return
      */
-    public function &get_subcategory($category_id, $index_to_return=False) {
+    public function get_subcategory($category_id, $index_to_return=False) {
         $categories = get_option('file_manager_settings');
         $categories = &$categories['categories'];
         $temp = array($category_id, '', array());

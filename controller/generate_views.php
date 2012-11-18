@@ -4,9 +4,8 @@ class generate_views extends file_manager {
 
     function __construct() {
         add_action('admin_menu', array(&$this, 'add_admin_menu'));
-
-        $temp = get_option('ma_accounts_settings');
-        $this->attachments = get_children('post_parent=' . get_page_by_title($temp['login_page'])->ID . '&post_type=attachment&orderby=title&order=ASC');
+        $settings = get_option('file_manager_settings');
+        $this->attachments = get_children('post_parent=' . $settings['attachment_page'] . '&post_type=attachment&orderby=title&order=ASC');
     } //End __construct
 
     public function add_admin_menu() {

@@ -9,78 +9,80 @@ if (is_numeric($_GET['id']) && $_GET['action'] === 'update_file') {
 ?>
 <div id="update_file" title="Edit File">
     <?php
-    if (array_key_exists($id, $file_manager['generate_views']->attachments) && $_GET['action'] === 'update_file') {
-	?>
-	<h2 style="text-align: center"><?php esc_html_e($file_manager['generate_views']->attachments[$id]->post_title); ?></h2>
-	<form id="edit_file" action="options.php#file_permissions" method="post">
-	    <?php settings_fields('file_manager_settings'); ?>
-	    <input name="file_manager_settings[file_id]" type="hidden" value="<?php echo (int) $id; ?>" />
-            <input type="hidden" name="_wp_http_referer" value="<?php admin_url(); ?>plugins.php?page=file_manager&amp;action=update_file">
+    if (is_array($file_manager['generate_views']->attachments)) {
+        if (array_key_exists($id, $file_manager['generate_views']->attachments) && $_GET['action'] === 'update_file') {
+        ?>
+        <h2 style="text-align: center"><?php esc_html_e($file_manager['generate_views']->attachments[$id]->post_title); ?></h2>
+        <form id="edit_file" action="options.php#file_permissions" method="post">
+            <?php settings_fields('file_manager_settings'); ?>
+            <input name="file_manager_settings[file_id]" type="hidden" value="<?php echo (int) $id; ?>" />
+                <input type="hidden" name="_wp_http_referer" value="<?php admin_url(); ?>plugins.php?page=file_manager&amp;action=update_file">
 
-	    <label class="file_manager_label">Categories</label> <br />
-	    <table>
-		<tbody>
-		    <?php
-            if (!empty($settings['categories'])) {
-                array_walk($settings['categories'], function($category_value, $category_key) use($settings, $id) {
-                    $checked = '';
-                    if (!empty($settings['files'][$id]['categories'])) {
-                        array_walk(explode(',', $settings['files'][$id]['categories']), function($file_value, $file_key) use(&$checked, $category_value) {
-                            if ($file_value != '' && $file_value == $category_value['id']) {
-                                $checked = 'checked="checked"';
-                            }
-                        });
-                    }
-                    ?>
-                    <tr>
-                        <td><?php esc_html_e($category_value['name']); ?></td>
-                        <td><input name="file_manager_settings[file_categories][<?php echo (int) $category_value['id']; ?>]" type="checkbox" value="<?php echo (int) $category_value['id']; ?>" <?php echo $checked; ?> /></td>
-                    </tr>
-                    <?php
-                });
-            }
-		    ?>
-		</tbody>
-	    </table>
+            <label class="file_manager_label">Categories</label> <br />
+            <table>
+            <tbody>
+                <?php
+                if (!empty($settings['categories'])) {
+                    array_walk($settings['categories'], function($category_value, $category_key) use($settings, $id) {
+                        $checked = '';
+                        if (!empty($settings['files'][$id]['categories'])) {
+                            array_walk(explode(',', $settings['files'][$id]['categories']), function($file_value, $file_key) use(&$checked, $category_value) {
+                                if ($file_value != '' && $file_value == $category_value['id']) {
+                                    $checked = 'checked="checked"';
+                                }
+                            });
+                        }
+                        ?>
+                        <tr>
+                            <td><?php esc_html_e($category_value['name']); ?></td>
+                            <td><input name="file_manager_settings[file_categories][<?php echo (int) $category_value['id']; ?>]" type="checkbox" value="<?php echo (int) $category_value['id']; ?>" <?php echo $checked; ?> /></td>
+                        </tr>
+                        <?php
+                    });
+                }
+                ?>
+            </tbody>
+            </table>
 
-	    <?php if ($settings['permissions']['use']) { ?>
-		<hr />
-		<label class="file_manager_label">Belts With Access</label> <br />
-		<select name="file_manager_settings[belt]">
-		    <option value="">None</option>
-		    <option disabled="disabled">-----------------</option>
-            <?php
-            if (!empty($permissions_settings['belts'])) {
-                array_walk($permissions_settings['belts'], function($belt_value, $belt_key) use($settings, $id) {
-                    $selected = ((!empty($settings['files'][$id]['belt_access']) || $settings['files'][$id]['belt_access'] === '0') && $settings['files'][$id]['belt_access'] == $belt_value['id']) ? 'selected="selected"' : '';
-                    echo '<option value="' . esc_html($belt_value['id']) . '" ' . $selected . '>' . esc_html($belt_value['name']) . '</option>';
-                });
-            }
-		    ?>
-		</select> <br /><br />
+            <?php if ($settings['permissions']['use']) { ?>
+            <hr />
+            <label class="file_manager_label">Belts With Access</label> <br />
+            <select name="file_manager_settings[belt]">
+                <option value="">None</option>
+                <option disabled="disabled">-----------------</option>
+                <?php
+                if (!empty($permissions_settings['belts'])) {
+                    array_walk($permissions_settings['belts'], function($belt_value, $belt_key) use($settings, $id) {
+                        $selected = ((!empty($settings['files'][$id]['belt_access']) || $settings['files'][$id]['belt_access'] === '0') && $settings['files'][$id]['belt_access'] == $belt_value['id']) ? 'selected="selected"' : '';
+                        echo '<option value="' . esc_html($belt_value['id']) . '" ' . $selected . '>' . esc_html($belt_value['name']) . '</option>';
+                    });
+                }
+                ?>
+            </select> <br /><br />
 
-		<label class="file_manager_label">Programs With Access</label> <br />
-		<table>
-		    <tbody>
-			<?php
-			$temp = (NULL !== $settings['files'][$id]['programs_access'] && False !== $settings['files'][$id]['programs_access']) ? explode(',', $settings['files'][$id]['programs_access']) : '';
-            if (!empty($permissions_settings['programs'])) {
-                array_walk($permissions_settings['programs'], function($program_value, $program_key) use($temp) {
-                    $checked = (is_array($temp) && in_array($program_value['id'], $temp)) ? 'checked="checked"' : '';
-                    ?>
-                    <tr>
-                    <td><?php esc_html_e($program_value['name']); ?></td>
-                    <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" <?php echo $checked; ?> /></td>
-                    </tr>
-                    <?php
-                });
-            }
-			?>
-		    </tbody>
-		</table>
-	    <?php } ?>
-	</form>
-	<?php
+            <label class="file_manager_label">Programs With Access</label> <br />
+            <table>
+                <tbody>
+                <?php
+                $temp = (NULL !== $settings['files'][$id]['programs_access'] && False !== $settings['files'][$id]['programs_access']) ? explode(',', $settings['files'][$id]['programs_access']) : '';
+                if (!empty($permissions_settings['programs'])) {
+                    array_walk($permissions_settings['programs'], function($program_value, $program_key) use($temp) {
+                        $checked = (is_array($temp) && in_array($program_value['id'], $temp)) ? 'checked="checked"' : '';
+                        ?>
+                        <tr>
+                        <td><?php esc_html_e($program_value['name']); ?></td>
+                        <td><input name="file_manager_settings[programs][<?php echo (int) $program_value['id']; ?>]" type="checkbox" value="<?php echo (int) $program_value['id']; ?>" <?php echo $checked; ?> /></td>
+                        </tr>
+                        <?php
+                    });
+                }
+                ?>
+                </tbody>
+            </table>
+            <?php } ?>
+        </form>
+        <?php
+        }
     }
     ?>
 </div>

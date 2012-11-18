@@ -20,6 +20,7 @@ Chnage class names (i.e. file_manager_update_settings)
 Figure out how to get a parent page link to work.
 Add "pretty" urls
 
+Change the line in /application/view/category.php that says 'VIP Content'. Make that another Setting
 Localize file uploading, auto attach, and add ability to unatach (if possible)
 Localize updating title, description, etc
 When changing attachment page, update all current attachments to new page

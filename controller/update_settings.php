@@ -5,6 +5,8 @@ class update_settings extends file_manager {
     } //End __construct
 
     public function admin_settings() {
+        global $file_manager;
+
         $permissions_settings = get_option(parent::$options['permissions']['options_name']);
         parent::$options = (!get_option('file_manager_settings')) ? parent::$options : get_option('file_manager_settings');
         $options_alias = &parent::$options;
@@ -52,12 +54,20 @@ class update_settings extends file_manager {
         if (current_user_can('administrator')) {
             register_setting('file_manager_settings', 'file_manager_settings', array(&$this, 'validate_settings'));
         }
+
+        $file_manager['generate_views']->attachments =& get_children('post_parent=' . parent::$options['attachment_page'] . '&post_type=attachment&orderby=title&order=ASC');
+
+        if (count($file_manager['generate_views']->attachments) > count(parent::$options['files'])) {
+            $this->validate_settings();
+        }
     } //End admin_settings
 
-    public function validate_settings($input) {
+    public function validate_settings($input=array()) {
+        global $file_manager;
         $temp = '';
         $parent_options = &parent::$options;
         $valid_options = array(
+            'attachment_page' => trim($input['attachment_page']),
             'permissions' => array(
                 'use' => trim($input['permissions']['use']),
                 'options_name' => trim($input['permissions']['options_name'])
@@ -71,8 +81,15 @@ class update_settings extends file_manager {
             $valid_options[$vo_key] = (!array_key_exists($vo_key, $input)) ? $parent_options[$vo_key] : $vo_value;
         });
 
-        array_walk($valid_options, function($vo_value, $vo_key) use(&$valid_options, $parent_options, $input, $temp, $permissions_settings) {
+        array_walk($valid_options, function($vo_value, $vo_key) use(&$valid_options, $parent_options, $input, $temp, $permissions_settings, $file_manager) {
             switch ($vo_key) {
+            case 'attachment_page':
+                if ('unset' != $vo_value && is_numeric($vo_value)) {
+                    $valid_options[$vo_key] = (int) $vo_value;
+                } else {
+                    $valid_options[$vo_key] = '';
+                }
+                break;
             case 'permissions':
                 if (!empty($vo_value['use'])) {
                     $valid_options[$vo_key]['use'] = True;
@@ -113,6 +130,19 @@ class update_settings extends file_manager {
                     }
 
                     $valid_options['files'][(int) $input['file_id']] = array('id' => (int) $input['file_id'], 'categories' => $temp[0], 'belt_access' => $temp[1], 'programs_access' => $temp[2]);
+                } else {
+                    if (is_array($file_manager['generate_views']->attachments)) {
+                        array_walk($file_manager['generate_views']->attachments, function($file_value, $file_id) use($vo_value, &$valid_options) {
+                            if (!array_key_exists($file_value->ID, $vo_value)) {
+                                $valid_options['files'][(int) $file_value->ID] = array(
+                                    'id' => (int) $file_value->ID,
+                                    'categories' => '',
+                                    'belt_access' => '',
+                                    'programs_access' => ''
+                                );
+                            }
+                        });
+                    }
                 }
                 break;
             case 'categories':

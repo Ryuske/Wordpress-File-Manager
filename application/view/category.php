@@ -20,52 +20,64 @@ if ($title != 'VIP Content') {
         <?php
         if ((!empty($file_manager['generate_views']->current_category) || $file_manager['generate_views']->current_category === '0') && $file_manager['generate_views']->check_permissions($current_user->ID, $settings['categories'][$file_manager['generate_views']->current_category]['belt_access'], $settings['categories'][$file_manager['generate_views']->current_category]['programs_access'])) {
             $display_categories = array();
-            array_walk($file_manager['main']->get_subcategories($file_manager['generate_views']->current_category, False), function($category_value, $category_key) use(&$display_categories, $settings) {
-                $display_categories[] = $category_value;
-            });
+            $subcategories = $file_manager['main']->get_subcategories($file_manager['generate_views']->current_category, False);
+            if (is_array($subcategories)) {
+                array_walk($getsubcategories, function($category_value, $category_key) use(&$display_categories, $settings) {
+                    $display_categories[] = $category_value;
+                });
+            }
         } else {
             $temp = $settings['categories'];
             $display_categories = array();
-            array_walk($temp, function($category_value, $category_key) use(&$display_categories) {
-                if (!preg_match('/_/', $category_value['id'])) {
-                    $display_categories[] = $category_value;
-                }
-            });
+            if (is_array($temp)) {
+                array_walk($temp, function($category_value, $category_key) use(&$display_categories) {
+                    if (!preg_match('/_/', $category_value['id'])) {
+                        $display_categories[] = $category_value;
+                    }
+                });
+            }
         }
         if ($display_categories[0] != '') {
             $display_categories = $file_manager['main']->sort_array_by_element($display_categories, 'name');
-            array_walk($display_categories, function($category_value, $category_key) use($file_manager, $settings) {
-                if ($file_manager['main']->check_permissions($current_user->ID, $category_value['belt_access'], $category_value['programs_access'])) {
-                    ?>
-                    <tr>
-                        <td class="category"><a href="?fm_category=<?php echo $category_value['id']; ?>"><?php esc_html_e($category_value['name']); ?></a></td>
-                    </tr>
-                    <?php
+            if (is_array($display_categories)) {
+                array_walk($display_categories, function($category_value, $category_key) use($file_manager, $settings) {
+                    if ($file_manager['main']->check_permissions($current_user->ID, $category_value['belt_access'], $category_value['programs_access'])) {
+                        ?>
+                        <tr>
+                            <td class="category"><a href="?fm_category=<?php echo $category_value['id']; ?>"><?php esc_html_e($category_value['name']); ?></a></td>
+                        </tr>
+                        <?php
+                    }
+                });
+            }
+        }
+
+        $display_files = array();
+        if (is_array($file_manager['generate_views']->attachments)) {
+            array_walk($file_manager['generate_views']->attachments, function($attachment_value, $attachment_key) use(&$display_files, $file_manager) {
+                if ($file_manager['main']->in_category($attachment_value->ID, $file_manager['generate_views']->current_category)) {
+                    $display_files[] = $attachment_value;
                 }
             });
         }
 
-        $display_files = array();
-        array_walk($settings['files'], function($file_value, $file_key) use(&$display_files, $file_manager) {
-            if (in_array($file_manager['generate_views']->current_category, explode(',', $file_value['categories']))) {
-                $display_files[] = $file_manager['generate_views']->attachments[$file_value['id']];
-            }
-        });
-        array_walk($display_files, function($file_value, $file_key) use($file_manager, $settings) {
-            if ($file_manager['main']->check_permissions($current_user->ID, $settings['files'][$file_value->ID]['belt_access'], $settings['files'][$file_value->ID]['programs_access'])) {
-                ?>
-                <tr>
-                    <?php
-                    if ($file_value->post_mime_type == 'application/pdf') {
-                        echo '<td class="file"><a href="?fm_attachment=' . (int) $file_value->ID . '" target="_blank">' . esc_html($file_value->post_title) . '</a></td>';
-                    } else {
-                        echo '<td class="file"><a href="?fm_attachment=' . (int) $file_value->ID . '">' . esc_html($file_value->post_title) . '</a></td>';
-                    }
+        if (is_array($display_files)) {
+            array_walk($display_files, function($file_value, $file_key) use($file_manager, $settings) {
+                if ($file_manager['main']->check_permissions($current_user->ID, $settings['files'][$file_value->ID]['belt_access'], $settings['files'][$file_value->ID]['programs_access'])) {
                     ?>
-                <tr>
-                <?php
-            }
-        });
+                    <tr>
+                        <?php
+                        if ($file_value->post_mime_type == 'application/pdf') {
+                            echo '<td class="file"><a href="?fm_attachment=' . (int) $file_value->ID . '" target="_blank">' . esc_html($file_value->post_title) . '</a></td>';
+                        } else {
+                            echo '<td class="file"><a href="?fm_attachment=' . (int) $file_value->ID . '">' . esc_html($file_value->post_title) . '</a></td>';
+                        }
+                        ?>
+                    <tr>
+                    <?php
+                }
+            });
+        }
         ?>
     </tbody>
 </table>

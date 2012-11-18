@@ -1,4 +1,11 @@
-11/16/2012 - Commit X
+11/18/2012 - Commit 1
+    Fixed more array_walk issues, where it tried to run through an empty array. /application/view/category.php, /application/view/options/file_permissions.php
+    Fixed issue in /application/view/options/file_permissions.php where if $permissions_settings wasn't set it would throw a fatal error
+    Fixed issues with actually displaying files in the file browser
+    Changed the attachment page to a variable ($settings['attachment_page'])
+    Fixed issue in /application/view/options/dialog.php where it was checking to see if files existed in $file_manager['generate_views']->attachments before $file_manager['generate_views']->attachments was actually set
+
+11/16/2012 - Commit 2
     Fixed $file_manager['main']->get_subcategory()
     Fixed updating & deleting categories
     Updated README
